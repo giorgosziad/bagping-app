@@ -8,7 +8,7 @@ workflows:
     environment:
       vars:
         PACKAGE_NAME: "com.bionectech.bagping"
-      node: 20
+      node: 22
     scripts:
       - name: Install JS deps
         script: npm ci || npm install
@@ -33,7 +33,7 @@ workflows:
         bundle_identifier: com.bionectech.bagping
       vars:
         BUNDLE_ID: "com.bionectech.bagping"
-      node: 20
+      node: 22
       xcode: latest
     scripts:
       - name: Install JS deps
