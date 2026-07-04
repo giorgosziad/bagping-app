@@ -18,7 +18,7 @@ workflows:
         script: |
           f=node_modules/cordova-plugin-ibeacon/src/android/cordova-plugin-ibeacon.gradle
           if [ -f "$f" ]; then
-            sed -i.bak "s/compile /implementation /g; s/compile(/implementation(/g" "$f"
+            sed -i.bak "s/compile /implementation /g; s/compile(/implementation(/g; s/2\.16\.1/2.19.6/g" "$f"
             echo "=== patched $f ==="; cat "$f"
           else
             echo "plugin gradle not found (path may differ)"; find node_modules/cordova-plugin-ibeacon -name "*.gradle"
