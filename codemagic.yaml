@@ -17,7 +17,8 @@ workflows:
       - name: Build debug APK (compile check - no signing needed)
         script: |
           cd android
-          ./gradlew assembleDebug
+          chmod +x ./gradlew || true
+          sh ./gradlew assembleDebug
     artifacts:
       - android/app/build/outputs/**/*.apk
 
