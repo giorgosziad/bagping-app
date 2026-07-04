@@ -60,6 +60,8 @@ workflows:
         script: |
           echo "=== profiles Codemagic set up ==="
           ls -la "$HOME/Library/MobileDevice/Provisioning Profiles/" 2>/dev/null || echo "(none yet)"
+          # generate export_options.plist AND apply profiles to the project
+          xcode-project use-profiles
           python3 - <<'PYEOF'
           import glob, os, re, subprocess, plistlib
           profs = glob.glob(os.path.expanduser("~/Library/MobileDevice/Provisioning Profiles/*.mobileprovision"))
