@@ -43,6 +43,9 @@ workflows:
     integrations:
       app_store_connect: BagPing ASC
     environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.bionectech.bagping
       vars:
         BUNDLE_ID: "com.bionectech.bagping"
         TEAM_ID: "6CL7W8TL88"
@@ -53,32 +56,29 @@ workflows:
         script: npm ci || npm install
       - name: Capacitor sync (iOS)
         script: npx cap sync ios
-      - name: Set up signing (create cert + profile, pin to project)
+      - name: Pin signing into project (SPM fix)
         script: |
-          set -e
-          keychain initialize
-          app-store-connect fetch-signing-files "com.bionectech.bagping" --type IOS_APP_STORE --create
-          keychain add-certificates
-          xcode-project use-profiles
-          echo "=== profiles on disk ==="
-          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles/" || true
+          echo "=== profiles Codemagic set up ==="
+          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles/" 2>/dev/null || echo "(none yet)"
           python3 - <<'PYEOF'
           import glob, os, re, subprocess, plistlib
           profs = glob.glob(os.path.expanduser("~/Library/MobileDevice/Provisioning Profiles/*.mobileprovision"))
-          assert profs, "No provisioning profile was created by fetch-signing-files"
-          name = plistlib.loads(subprocess.check_output(["security","cms","-D","-i",profs[0]]))["Name"]
-          print("Pinning profile:", name)
-          pbx = "ios/App/App.xcodeproj/project.pbxproj"
-          s = open(pbx).read()
-          s = re.sub(r'\s*DEVELOPMENT_TEAM = [^;]+;', '', s)
-          s = re.sub(r'\s*PROVISIONING_PROFILE_SPECIFIER = [^;]+;', '', s)
-          repl = ('CODE_SIGN_STYLE = Manual;\n'
-                  '\t\t\t\tDEVELOPMENT_TEAM = 6CL7W8TL88;\n'
-                  '\t\t\t\tPROVISIONING_PROFILE_SPECIFIER = "%s";\n'
-                  '\t\t\t\tCODE_SIGN_IDENTITY = "Apple Distribution";' % name)
-          s = re.sub(r'CODE_SIGN_STYLE = \w+;', repl, s)
-          open(pbx,"w").write(s)
-          print("pbxproj patched for manual App Store signing")
+          if not profs:
+              print("No profile on disk yet - relying on Codemagic ios_signing.")
+          else:
+              name = plistlib.loads(subprocess.check_output(["security","cms","-D","-i",profs[0]]))["Name"]
+              print("Pinning profile:", name)
+              pbx = "ios/App/App.xcodeproj/project.pbxproj"
+              s = open(pbx).read()
+              s = re.sub(r'\s*DEVELOPMENT_TEAM = [^;]+;', '', s)
+              s = re.sub(r'\s*PROVISIONING_PROFILE_SPECIFIER = [^;]+;', '', s)
+              repl = ('CODE_SIGN_STYLE = Manual;\n'
+                      '\t\t\t\tDEVELOPMENT_TEAM = 6CL7W8TL88;\n'
+                      '\t\t\t\tPROVISIONING_PROFILE_SPECIFIER = "%s";\n'
+                      '\t\t\t\tCODE_SIGN_IDENTITY = "Apple Distribution";' % name)
+              s = re.sub(r'CODE_SIGN_STYLE = \w+;', repl, s)
+              open(pbx,"w").write(s)
+              print("pbxproj pinned to profile")
           PYEOF
       - name: Build IPA (SPM project, no CocoaPods)
         script: |
