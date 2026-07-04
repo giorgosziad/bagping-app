@@ -56,10 +56,22 @@ workflows:
         script: npm ci || npm install
       - name: Capacitor sync (iOS)
         script: npx cap sync ios
-      - name: Patch iBeacon iOS (drop Cordova-only AppDelegate category)
+      - name: Patch iBeacon iOS (Cordova + deprecated-API fixes)
         script: |
           d=ios/capacitor-cordova-ios-plugins/sources/CordovaPluginIbeacon
+          # 1) drop Cordova-only AppDelegate category (Capacitor uses a Swift AppDelegate)
           rm -f "$d/AppDelegate+CDVLocationManager.h" "$d/AppDelegate+CDVLocationManager.m" || true
+          # 2) strip the debug notifier that uses UILocalNotification (removed from modern iOS SDK)
+          if [ -f "$d/LMLogger.m" ]; then
+            sed -i.bak \
+              -e '/UILocalNotification \*notification/d' \
+              -e '/notification.alertBody = alertBody;/d' \
+              -e '/notification.soundName = UILocalNotificationDefaultSoundName;/d' \
+              -e '/presentLocalNotificationNow:notification/d' \
+              "$d/LMLogger.m"
+            echo "=== LMLogger.m postLocalNotification method after patch ==="
+            sed -n '/postLocalNotificationWithMessage/,/^}/p' "$d/LMLogger.m"
+          fi
           echo "=== remaining iBeacon plugin files ==="
           ls -la "$d" 2>/dev/null || echo "(dir not found)"
       - name: Pin signing into project (SPM fix)
