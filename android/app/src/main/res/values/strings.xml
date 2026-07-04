@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">BagPing</string>
+    <string name="title_activity_main">BagPing</string>
+    <string name="package_name">com.bionectech.bagping</string>
+    <string name="custom_url_scheme">com.bionectech.bagping</string>
+</resources>

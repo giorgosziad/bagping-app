@@ -1,0 +1,15 @@
+node_modules/
+.DS_Store
+# iOS
+ios/App/build/
+ios/App/Pods/
+DerivedData/
+*.xcuserstate
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/app/bagping.keystore
+# misc
+npm-debug.log*

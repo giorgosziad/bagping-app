@@ -1,0 +1,64 @@
+# BagPing - cloud build (Codemagic). Builds iOS + Android from this Capacitor repo.
+# Signing/credentials are configured in the Codemagic UI (see README).
+workflows:
+  android:
+    name: BagPing Android
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      groups:
+        - bagping_android      # in Codemagic UI: CM_KEYSTORE, CM_KEYSTORE_PASSWORD, CM_KEY_ALIAS, CM_KEY_PASSWORD
+      vars:
+        PACKAGE_NAME: "com.bionectech.bagping"
+      node: 20
+    scripts:
+      - name: Install JS deps
+        script: npm ci || npm install
+      - name: Capacitor sync (Android)
+        script: npx cap sync android
+      - name: Decode keystore
+        script: echo $CM_KEYSTORE | base64 --decode > android/app/bagping.keystore
+      - name: Build release AAB
+        script: |
+          cd android
+          ./gradlew bundleRelease
+    artifacts:
+      - android/app/build/outputs/**/*.aab
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS   # set in Codemagic UI
+        track: internal
+        submit_as_draft: true
+
+  ios:
+    name: BagPing iOS
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: BagPing ASC      # App Store Connect API key added in Codemagic UI
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.bionectech.bagping
+      vars:
+        BUNDLE_ID: "com.bionectech.bagping"
+      node: 20
+      xcode: latest
+    scripts:
+      - name: Install JS deps
+        script: npm ci || npm install
+      - name: Capacitor sync (iOS)
+        script: npx cap sync ios
+      - name: Set up code signing
+        script: xcode-project use-profiles
+      - name: Build IPA (SPM project, no CocoaPods)
+        script: |
+          xcode-project build-ipa \
+            --project "ios/App/App.xcodeproj" \
+            --scheme "App"
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
