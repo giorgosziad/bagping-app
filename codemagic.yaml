@@ -56,6 +56,12 @@ workflows:
         script: npm ci || npm install
       - name: Capacitor sync (iOS)
         script: npx cap sync ios
+      - name: Patch iBeacon iOS (drop Cordova-only AppDelegate category)
+        script: |
+          d=ios/capacitor-cordova-ios-plugins/sources/CordovaPluginIbeacon
+          rm -f "$d/AppDelegate+CDVLocationManager.h" "$d/AppDelegate+CDVLocationManager.m" || true
+          echo "=== remaining iBeacon plugin files ==="
+          ls -la "$d" 2>/dev/null || echo "(dir not found)"
       - name: Pin signing into project (SPM fix)
         script: |
           echo "=== profiles Codemagic set up ==="
