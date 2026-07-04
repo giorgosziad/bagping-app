@@ -26,8 +26,10 @@ workflows:
       - name: Build debug APK (compile check - no signing needed)
         script: |
           cd android
+          export JAVA_HOME=$(/usr/libexec/java_home -v 21 || /usr/libexec/java_home)
+          echo "Using JAVA_HOME=$JAVA_HOME"; "$JAVA_HOME/bin/java" -version
           chmod +x ./gradlew || true
-          sh ./gradlew assembleDebug
+          sh ./gradlew assembleDebug -Dorg.gradle.java.home="$JAVA_HOME"
     artifacts:
       - android/app/build/outputs/**/*.apk
 
