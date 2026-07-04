@@ -6,8 +6,6 @@ workflows:
     instance_type: mac_mini_m2
     max_build_duration: 60
     environment:
-      groups:
-        - bagping_android      # in Codemagic UI: CM_KEYSTORE, CM_KEYSTORE_PASSWORD, CM_KEY_ALIAS, CM_KEY_PASSWORD
       vars:
         PACKAGE_NAME: "com.bionectech.bagping"
       node: 20
@@ -16,19 +14,12 @@ workflows:
         script: npm ci || npm install
       - name: Capacitor sync (Android)
         script: npx cap sync android
-      - name: Decode keystore
-        script: echo $CM_KEYSTORE | base64 --decode > android/app/bagping.keystore
-      - name: Build release AAB
+      - name: Build debug APK (compile check - no signing needed)
         script: |
           cd android
-          ./gradlew bundleRelease
+          ./gradlew assembleDebug
     artifacts:
-      - android/app/build/outputs/**/*.aab
-    publishing:
-      google_play:
-        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS   # set in Codemagic UI
-        track: internal
-        submit_as_draft: true
+      - android/app/build/outputs/**/*.apk
 
   ios:
     name: BagPing iOS
