@@ -1,5 +1,4 @@
 # BagPing - cloud build (Codemagic). Builds iOS + Android from this Capacitor repo.
-# Signing/credentials are configured in the Codemagic UI (see README).
 workflows:
   android:
     name: BagPing Android
@@ -20,21 +19,18 @@ workflows:
           if [ -f "$f" ]; then
             sed -i.bak "s/compile /implementation /g; s/compile(/implementation(/g; s/2\.16\.1/2.19.6/g" "$f"
             echo "=== patched $f ==="; cat "$f"
-          else
-            echo "plugin gradle not found (path may differ)"; find node_modules/cordova-plugin-ibeacon -name "*.gradle"
           fi
       - name: Enable Jetifier (bridge old plugin to AndroidX)
         script: |
           cd android
           grep -q "android.useAndroidX=true" gradle.properties || echo "android.useAndroidX=true" >> gradle.properties
           grep -q "android.enableJetifier=true" gradle.properties || echo "android.enableJetifier=true" >> gradle.properties
-          echo "--- gradle.properties ---"; cat gradle.properties
           cd ..
       - name: Build debug APK (compile check - no signing needed)
         script: |
           cd android
           export JAVA_HOME=$(/usr/libexec/java_home -v 21 || /usr/libexec/java_home)
-          echo "Using JAVA_HOME=$JAVA_HOME"; "$JAVA_HOME/bin/java" -version
+          echo "Using JAVA_HOME=$JAVA_HOME"
           chmod +x ./gradlew || true
           sh ./gradlew assembleDebug -Dorg.gradle.java.home="$JAVA_HOME"
     artifacts:
@@ -45,10 +41,11 @@ workflows:
     instance_type: mac_mini_m2
     max_build_duration: 60
     integrations:
-      app_store_connect: BagPing ASC      # App Store Connect API key added in Codemagic UI
+      app_store_connect: BagPing ASC
     environment:
       vars:
         BUNDLE_ID: "com.bionectech.bagping"
+        TEAM_ID: "6CL7W8TL88"
       node: 22
       xcode: latest
     scripts:
@@ -56,26 +53,36 @@ workflows:
         script: npm ci || npm install
       - name: Capacitor sync (iOS)
         script: npx cap sync ios
-      - name: Set up signing (auto-create cert + profile if missing)
+      - name: Set up signing (create cert + profile, pin to project)
         script: |
+          set -e
           keychain initialize
-          app-store-connect fetch-signing-files "com.bionectech.bagping" \
-            --type IOS_APP_STORE \
-            --create
+          app-store-connect fetch-signing-files "com.bionectech.bagping" --type IOS_APP_STORE --create
           keychain add-certificates
-          echo "=== profiles fetched to disk ==="
-          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ 2>/dev/null || echo "(none found)"
-          xcode-project use-profiles \
-            --project "ios/App/App.xcodeproj" \
-            --scheme "App" \
-            --verbose
-          echo "=== signing settings after use-profiles ==="
-          xcodebuild -project ios/App/App.xcodeproj -target App -showBuildSettings 2>/dev/null | grep -i "CODE_SIGN\|PROVISIONING\|DEVELOPMENT_TEAM" | head -20 || true
+          xcode-project use-profiles
+          echo "=== profiles on disk ==="
+          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles/" || true
+          python3 - <<'PYEOF'
+          import glob, os, re, subprocess, plistlib
+          profs = glob.glob(os.path.expanduser("~/Library/MobileDevice/Provisioning Profiles/*.mobileprovision"))
+          assert profs, "No provisioning profile was created by fetch-signing-files"
+          name = plistlib.loads(subprocess.check_output(["security","cms","-D","-i",profs[0]]))["Name"]
+          print("Pinning profile:", name)
+          pbx = "ios/App/App.xcodeproj/project.pbxproj"
+          s = open(pbx).read()
+          s = re.sub(r'\s*DEVELOPMENT_TEAM = [^;]+;', '', s)
+          s = re.sub(r'\s*PROVISIONING_PROFILE_SPECIFIER = [^;]+;', '', s)
+          repl = ('CODE_SIGN_STYLE = Manual;\n'
+                  '\t\t\t\tDEVELOPMENT_TEAM = 6CL7W8TL88;\n'
+                  '\t\t\t\tPROVISIONING_PROFILE_SPECIFIER = "%s";\n'
+                  '\t\t\t\tCODE_SIGN_IDENTITY = "Apple Distribution";' % name)
+          s = re.sub(r'CODE_SIGN_STYLE = \w+;', repl, s)
+          open(pbx,"w").write(s)
+          print("pbxproj patched for manual App Store signing")
+          PYEOF
       - name: Build IPA (SPM project, no CocoaPods)
         script: |
-          xcode-project build-ipa \
-            --project "ios/App/App.xcodeproj" \
-            --scheme "App"
+          xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "App"
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
