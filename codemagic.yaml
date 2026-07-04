@@ -63,7 +63,9 @@ workflows:
             --type IOS_APP_STORE \
             --create
           keychain add-certificates
-          xcode-project use-profiles
+          xcode-project use-profiles --project "ios/App/App.xcodeproj"
+          echo "--- signing settings after use-profiles ---"
+          xcodebuild -project ios/App/App.xcodeproj -showBuildSettings 2>/dev/null | grep -i "CODE_SIGN\|PROVISIONING\|DEVELOPMENT_TEAM" | head || true
       - name: Build IPA (SPM project, no CocoaPods)
         script: |
           xcode-project build-ipa \
