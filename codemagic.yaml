@@ -23,6 +23,13 @@ workflows:
           else
             echo "plugin gradle not found (path may differ)"; find node_modules/cordova-plugin-ibeacon -name "*.gradle"
           fi
+      - name: Enable Jetifier (bridge old plugin to AndroidX)
+        script: |
+          cd android
+          grep -q "android.useAndroidX=true" gradle.properties || echo "android.useAndroidX=true" >> gradle.properties
+          grep -q "android.enableJetifier=true" gradle.properties || echo "android.enableJetifier=true" >> gradle.properties
+          echo "--- gradle.properties ---"; cat gradle.properties
+          cd ..
       - name: Build debug APK (compile check - no signing needed)
         script: |
           cd android
