@@ -47,9 +47,6 @@ workflows:
     integrations:
       app_store_connect: BagPing ASC      # App Store Connect API key added in Codemagic UI
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.bionectech.bagping
       vars:
         BUNDLE_ID: "com.bionectech.bagping"
       node: 22
@@ -59,8 +56,14 @@ workflows:
         script: npm ci || npm install
       - name: Capacitor sync (iOS)
         script: npx cap sync ios
-      - name: Set up code signing
-        script: xcode-project use-profiles
+      - name: Set up signing (auto-create cert + profile if missing)
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "com.bionectech.bagping" \
+            --type IOS_APP_STORE \
+            --create
+          keychain add-certificates
+          xcode-project use-profiles
       - name: Build IPA (SPM project, no CocoaPods)
         script: |
           xcode-project build-ipa \
