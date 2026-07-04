@@ -14,6 +14,15 @@ workflows:
         script: npm ci || npm install
       - name: Capacitor sync (Android)
         script: npx cap sync android
+      - name: Patch iBeacon plugin for modern Gradle
+        script: |
+          f=node_modules/cordova-plugin-ibeacon/src/android/cordova-plugin-ibeacon.gradle
+          if [ -f "$f" ]; then
+            sed -i.bak "s/compile /implementation /g; s/compile(/implementation(/g" "$f"
+            echo "=== patched $f ==="; cat "$f"
+          else
+            echo "plugin gradle not found (path may differ)"; find node_modules/cordova-plugin-ibeacon -name "*.gradle"
+          fi
       - name: Build debug APK (compile check - no signing needed)
         script: |
           cd android
