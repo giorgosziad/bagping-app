@@ -74,6 +74,13 @@ workflows:
           fi
           echo "=== remaining iBeacon plugin files ==="
           ls -la "$d" 2>/dev/null || echo "(dir not found)"
+      - name: Fix Info.plist (photo purpose string + unique build number)
+        script: |
+          PLIST=ios/App/App/Info.plist
+          /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'BagPing can use a photo of your bag so you can recognize it in belt alerts.'" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" "$PLIST" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string $BUILD_NUMBER" "$PLIST" 2>/dev/null || true
+          echo "CFBundleVersion -> $(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$PLIST")"
+          echo "Photo string -> $(/usr/libexec/PlistBuddy -c 'Print :NSPhotoLibraryUsageDescription' "$PLIST")"
       - name: Pin signing into project (SPM fix)
         script: |
           echo "=== profiles Codemagic set up ==="
