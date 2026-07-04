@@ -208,6 +208,7 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
       <label data-i18n="auth_code_label">Verification code</label>
       <input type="text" id="input-code" placeholder="6-digit code" autocomplete="one-time-code" inputmode="numeric" maxlength="6">
     </div>
+    <div id="auth-hint-code" style="display:none;font-size:13px;color:#006BB5;background:#e8f4fb;border-radius:8px;padding:9px 11px;margin:0 0 12px;line-height:1.45"></div>
     <button class="btn-primary" id="btn-verify" data-i18n="auth_verify">Verify</button>
     <button class="btn-ghost" id="btn-resend" data-i18n="auth_resend">Resend code</button>
     <button class="btn-ghost" id="btn-auth-back" data-i18n="auth_back">Back</button>
@@ -472,6 +473,8 @@ const state = {
 };
 
 const API_BASE = 'https://bagping-backend.onrender.com';
+const SMS_ENABLED = false;      // flip to true when the real SMS verify service is live
+const DEMO_CODE = '123456';     // beta access code while SMS is disabled
 
 function detectLang(){
   const saved = localStorage.getItem('bp_lang');
@@ -611,14 +614,21 @@ async function sendCode(){
     return;
   }
   state.phone = phone;
-  try {
-    await fetch(API_BASE + '/api/auth/send-code', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({phone, lang: state.lang})
-    }).catch(()=>null);
-  } catch(e){}
+  if (SMS_ENABLED) {
+    try {
+      await fetch(API_BASE + '/api/auth/send-code', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({phone, lang: state.lang})
+      }).catch(()=>null);
+    } catch(e){}
+  }
   document.getElementById('auth-step-phone').style.display='none';
   document.getElementById('auth-step-code').style.display='block';
+  var _hint = document.getElementById('auth-hint-code');
+  if (_hint) {
+    if (SMS_ENABLED) { _hint.style.display='none'; }
+    else { _hint.textContent = 'Beta access - enter code ' + DEMO_CODE + ' to continue.'; _hint.style.display='block'; }
+  }
   document.getElementById('input-code').focus();
 }
 
@@ -627,6 +637,17 @@ async function verifyCode(){
   if (!code || code.length < 4){
     showAuthError('code', t('error_generic'));
     return;
+  }
+  if (!SMS_ENABLED) {
+    if (code !== DEMO_CODE) { showAuthError('code', 'Beta access code is ' + DEMO_CODE); return; }
+  } else {
+    try {
+      const r = await fetch(API_BASE + '/api/auth/verify-code', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({phone: state.phone, code})
+      });
+      if (!r || !r.ok) { showAuthError('code', t('error_generic')); return; }
+    } catch(e){ showAuthError('code', t('error_generic')); return; }
   }
   state.authed = true;
   persist();
