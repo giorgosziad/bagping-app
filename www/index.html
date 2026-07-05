@@ -30,6 +30,8 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 .auth-logo-icon{width:52px;height:52px;background:var(--sky);border-radius:14px;display:flex;align-items:center;justify-content:center}
 .auth-logo-text{font-family:'DM Serif Display',serif;font-size:28px}
 .auth-logo-text span{color:var(--yellow)}
+.auth-lang-btn{display:inline-flex;align-items:center;gap:7px;margin:-16px 0 26px;padding:8px 15px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);border-radius:999px;color:#fff;font-size:14px;cursor:pointer;transition:background .15s}
+.auth-lang-btn:active{background:rgba(255,255,255,.16)}
 .auth-card{width:100%;max-width:400px;background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:32px 28px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 .auth-card h2{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:6px}
 .auth-card p{color:var(--muted);font-size:14px;margin-bottom:28px}
@@ -191,6 +193,10 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
     </div>
     <div class="auth-logo-text">Bag<span>Ping</span></div>
   </div>
+  <button class="auth-lang-btn" id="btn-auth-lang" aria-label="Language">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M3 12h18" stroke="currentColor" stroke-width="1.7"/><path d="M12 3c2.6 2.6 2.6 15.4 0 18M12 3c-2.6 2.6-2.6 15.4 0 18" stroke="currentColor" stroke-width="1.7"/></svg>
+    <span id="auth-lang-label">English</span>
+  </button>
   <div class="auth-card" id="auth-step-phone">
     <h2 data-i18n="auth_title">Welcome to BagPing</h2>
     <p data-i18n="auth_subtitle">Track your bag. Travel with certainty.</p>
@@ -534,6 +540,8 @@ function applyI18n(){
   if (bagSerial) bagSerial.placeholder = t('bags_serial_placeholder');
   const langValue = document.getElementById('settings-lang-value');
   if (langValue) langValue.textContent = LANG_NAMES[state.lang];
+  var _authLangLbl = document.getElementById('auth-lang-label');
+  if (_authLangLbl) _authLangLbl.textContent = LANG_NAMES[state.lang];
   const notifValue = document.getElementById('settings-notif-value');
   if (notifValue) notifValue.textContent = state.notif ? t('settings_notifications_on') : t('settings_notifications_off');
 }
@@ -812,6 +820,7 @@ function logout(){
 
 function bind(){
   document.getElementById('btn-send-code').addEventListener('click', sendCode);
+  document.getElementById('btn-auth-lang').addEventListener('click', openLangPicker);
   document.getElementById('btn-verify').addEventListener('click', verifyCode);
   document.getElementById('btn-resend').addEventListener('click', sendCode);
   document.getElementById('btn-auth-back').addEventListener('click', backToPhone);
