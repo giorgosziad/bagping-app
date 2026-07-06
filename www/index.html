@@ -143,6 +143,10 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 .chat-input::placeholder{color:rgba(255,255,255,.3)}
 .chat-send-btn{width:42px;height:42px;flex-shrink:0;background:var(--yellow);color:var(--ink);border:none;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .15s}
 .chat-send-btn:active{opacity:.8}
+.chat-mic-btn{width:42px;height:42px;flex-shrink:0;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.chat-mic-btn.listening{background:#e5484d;border-color:#e5484d;animation:micPulse 1s ease-in-out infinite}
+@keyframes micPulse{0%,100%{box-shadow:0 0 0 0 rgba(229,72,77,.5)}50%{box-shadow:0 0 0 8px rgba(229,72,77,0)}}
+.chat-voice-toggle{background:none;border:none;cursor:pointer;padding:4px;margin-right:6px;transition:opacity .15s}
 .modal-overlay{position:fixed;inset:0;z-index:300;background:rgba(4,30,51,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center}
 .modal-overlay.open{display:flex}
 .modal-sheet{width:100%;max-width:480px;background:linear-gradient(180deg,#063a63 0%,#052744 100%);border-top:1px solid var(--glass-border);border-radius:24px 24px 0 0;padding:0 24px calc(24px + var(--safe-bottom))}
@@ -415,6 +419,9 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
           <div class="chat-agent-sub" id="chat-agent-sub">BagPing crew</div>
         </div>
       </div>
+      <button class="chat-voice-toggle" id="chat-voice-toggle" aria-label="Voice on/off">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 10v4h4l5 5V5L7 10H3z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M16 9a3 3 0 0 1 0 6M18.5 6.5a7 7 0 0 1 0 11" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
       <button class="chat-close" id="chat-close" aria-label="Close">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
@@ -422,6 +429,9 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
     <div class="chat-messages" id="chat-messages"></div>
     <div class="chat-input-area">
       <textarea class="chat-input" id="chat-input" rows="1" placeholder="Ask your crew anything..."></textarea>
+      <button class="chat-mic-btn" id="chat-mic" aria-label="Speak">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" stroke="#fff" stroke-width="2"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
       <button class="chat-send-btn" id="chat-send" aria-label="Send">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="#052744" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
@@ -509,6 +519,7 @@ const state = {
   phone: '',
   currentAgent: 'bag',
   token: '',  // backend JWT (set at login when real auth is wired)
+  voiceOn: true,
   chats: {},
   sending: false
 };
@@ -557,6 +568,7 @@ function loadState(){
     state.lang = detectLang();
     state.authed = localStorage.getItem('bp_authed') === '1';
     state.token = localStorage.getItem('bp_token') || '';
+    state.voiceOn = localStorage.getItem('bp_voice') !== '0';
     state.phone = localStorage.getItem('bp_phone') || '';
     state.bags = JSON.parse(localStorage.getItem('bp_bags') || '[]');
     state.notif = localStorage.getItem('bp_notif') !== '0';
@@ -568,6 +580,7 @@ function persist(){
     localStorage.setItem('bp_lang', state.lang);
     localStorage.setItem('bp_authed', state.authed ? '1' : '0');
     localStorage.setItem('bp_token', state.token || '');
+    localStorage.setItem('bp_voice', state.voiceOn ? '1' : '0');
     localStorage.setItem('bp_phone', state.phone);
     localStorage.setItem('bp_bags', JSON.stringify(state.bags));
     localStorage.setItem('bp_notif', state.notif ? '1' : '0');
@@ -790,6 +803,60 @@ function hideTyping(){
   if (el) el.remove();
 }
 
+var TTS_LANG = {en:'en-US',es:'es-ES',fr:'fr-FR',de:'de-DE',it:'it-IT',pt:'pt-PT',ar:'ar-SA',zh:'zh-CN',ja:'ja-JP',ko:'ko-KR',ru:'ru-RU',nl:'nl-NL',pl:'pl-PL',tr:'tr-TR',sv:'sv-SE',da:'da-DK',fi:'fi-FI',el:'el-GR',he:'he-IL'};
+function voiceLang(){ return TTS_LANG[state.lang] || 'en-US'; }
+function capPlugin(n){ return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins[n]) || null; }
+async function speakReply(text){
+  if (!state.voiceOn || !text) return;
+  try {
+    var TTS = capPlugin('TextToSpeech');
+    if (TTS) { try { await TTS.stop(); } catch(e){} await TTS.speak({ text: text, lang: voiceLang(), rate: 1.0, pitch: 1.0, volume: 1.0 }); return; }
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text); u.lang = voiceLang();
+      window.speechSynthesis.speak(u);
+    }
+  } catch(e){}
+}
+var _listening = false;
+function setMicUI(on){ var b=document.getElementById('chat-mic'); if (b) b.classList.toggle('listening', on); }
+function setVoiceUI(){ var b=document.getElementById('chat-voice-toggle'); if (b) b.style.opacity = state.voiceOn ? '1' : '0.4'; }
+function toggleVoice(){
+  state.voiceOn = !state.voiceOn; persist(); setVoiceUI();
+  if (!state.voiceOn) { try { if (window.speechSynthesis) window.speechSynthesis.cancel(); var T=capPlugin('TextToSpeech'); if (T) T.stop(); } catch(e){} }
+}
+async function toggleMic(){
+  var input = document.getElementById('chat-input');
+  var SR = capPlugin('SpeechRecognition');
+  if (SR) {
+    if (_listening) { try { await SR.stop(); } catch(e){} _listening=false; setMicUI(false); return; }
+    try {
+      var perm = await SR.checkPermissions();
+      if (!perm || perm.speechRecognition !== 'granted') {
+        var rp = await SR.requestPermissions();
+        if (!rp || rp.speechRecognition !== 'granted') { toast('Microphone access is needed to talk to the crew.'); return; }
+      }
+      try { if (SR.removeAllListeners) await SR.removeAllListeners(); } catch(e){}
+      SR.addListener('partialResults', function(data){
+        if (data && data.matches && data.matches.length){ input.value = data.matches[0]; input.style.height='auto'; input.style.height=Math.min(input.scrollHeight,120)+'px'; }
+      });
+      _listening = true; setMicUI(true);
+      await SR.start({ language: voiceLang(), maxResults: 2, partialResults: true, popup: false });
+      _listening = false; setMicUI(false);
+    } catch(e){ _listening=false; setMicUI(false); }
+    return;
+  }
+  var WSR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!WSR) { toast('Voice input is not available on this device.'); return; }
+  if (_listening && window._wsr) { try { window._wsr.stop(); } catch(e){} return; }
+  var r = new WSR(); window._wsr = r;
+  r.lang = voiceLang(); r.interimResults = true; r.maxAlternatives = 1;
+  r.onresult = function(ev){ var t=''; for (var i=0;i<ev.results.length;i++) t+=ev.results[i][0].transcript; input.value=t; };
+  r.onend = function(){ _listening=false; setMicUI(false); };
+  r.onerror = function(){ _listening=false; setMicUI(false); };
+  _listening=true; setMicUI(true); try{ r.start(); }catch(e){ _listening=false; setMicUI(false); }
+}
+
 async function ensureBackendToken(){
   if (state.token) return state.token;
   var digits = (state.phone || '').replace(/[^0-9]/g,'') || 'guest';
@@ -840,7 +907,9 @@ async function sendChatMessage(){
     hideTyping();
     if (!r.ok) throw new Error('http');
     const data = await r.json();
-    appendMessage('agent', data.text || data.reply || t('chat_error'));
+    var _reply = data.text || data.reply || t('chat_error');
+    appendMessage('agent', _reply);
+    speakReply(_reply);
   } catch(e){
     clearTimeout(timer);
     hideTyping();
@@ -943,6 +1012,9 @@ function bind(){
     if (e.target.id==='chat-overlay') closeChat();
   });
   document.getElementById('chat-send').addEventListener('click', sendChatMessage);
+  document.getElementById('chat-mic').addEventListener('click', toggleMic);
+  document.getElementById('chat-voice-toggle').addEventListener('click', toggleVoice);
+  setVoiceUI();
   document.getElementById('chat-input').addEventListener('keydown', e=>{
     if (e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendChatMessage(); }
   });
