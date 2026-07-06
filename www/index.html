@@ -240,7 +240,7 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
       <svg class="belt-svg-wrap" viewBox="0 0 320 88" preserveAspectRatio="xMidYMid meet">
         <rect x="10" y="56" width="300" height="20" rx="10" fill="rgba(255,255,255,.06)"/>
         <path class="belt-anim" d="M10 66 L310 66" stroke="rgba(255,255,255,.16)" stroke-width="2" stroke-dasharray="8 24" stroke-linecap="round"/>
-        <g class="bag-float" transform="translate(150 22)">
+        <g transform="translate(150 22)"><animateTransform attributeName="transform" additive="sum" type="translate" values="0 0; 0 -7; 0 0" keyTimes="0;0.5;1" dur="2.4s" repeatCount="indefinite"/>
           <rect x="0" y="8" width="40" height="32" rx="4" fill="#FFD600"/>
           <rect x="0" y="8" width="40" height="32" rx="4" fill="none" stroke="#052744" stroke-width="1.5"/>
           <path d="M12 8 V4 a4 4 0 0 1 4-4 h8 a4 4 0 0 1 4 4 v4" stroke="#052744" stroke-width="2" fill="none"/>
@@ -736,7 +736,7 @@ async function sendChatMessage(){
   state.sending = true;
   showTyping();
   const ctrl = new AbortController();
-  const timer = setTimeout(()=>ctrl.abort(), 25000);
+  const timer = setTimeout(()=>ctrl.abort(), 60000);
   try {
     const r = await fetch(API_BASE + '/api/chat', {
       method:'POST', headers:{'Content-Type':'application/json'},
