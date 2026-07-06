@@ -78,6 +78,8 @@ workflows:
         script: |
           PLIST=ios/App/App/Info.plist
           /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'BagPing can use a photo of your bag so you can recognize it in belt alerts.'" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :NSMicrophoneUsageDescription string 'BagPing uses the microphone so you can talk to your AI Travel Crew.'" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :NSSpeechRecognitionUsageDescription string 'BagPing uses speech recognition to turn what you say into messages for the crew.'" "$PLIST" 2>/dev/null || true
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" "$PLIST" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string $BUILD_NUMBER" "$PLIST" 2>/dev/null || true
           echo "CFBundleVersion -> $(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$PLIST")"
           echo "Photo string -> $(/usr/libexec/PlistBuddy -c 'Print :NSPhotoLibraryUsageDescription' "$PLIST")"
