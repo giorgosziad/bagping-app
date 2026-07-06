@@ -56,7 +56,8 @@ var BAGPING_I18N = {
   "error_generic": "Please check your entry and try again.",
   "error_photo_size": "That photo is too large. Please pick a smaller one.",
   "install_prompt": "Add BagPing to your home screen",
-  "settings_notifications_off": "Off"
+  "settings_notifications_off": "Off",
+  "legal_note": "This document is provided in English, the authoritative version."
  },
  "es": {
   "auth_title": "Bienvenido a BagPing",
@@ -113,7 +114,8 @@ var BAGPING_I18N = {
   "error_generic": "Revisa tu información e inténtalo de nuevo.",
   "error_photo_size": "Esa foto es demasiado grande. Elige una más pequeña.",
   "install_prompt": "Añade BagPing a tu pantalla de inicio",
-  "settings_notifications_off": "Desactivadas"
+  "settings_notifications_off": "Desactivadas",
+  "legal_note": "Este documento se proporciona en inglés, la versión oficial."
  },
  "fr": {
   "auth_title": "Bienvenue sur BagPing",
@@ -170,7 +172,8 @@ var BAGPING_I18N = {
   "error_generic": "Vérifiez votre saisie et réessayez.",
   "error_photo_size": "Cette photo est trop volumineuse. Choisissez-en une plus petite.",
   "install_prompt": "Ajoutez BagPing à votre écran d'accueil",
-  "settings_notifications_off": "Désactivées"
+  "settings_notifications_off": "Désactivées",
+  "legal_note": "Ce document est fourni en anglais, la version faisant foi."
  },
  "de": {
   "auth_title": "Willkommen bei BagPing",
@@ -227,7 +230,8 @@ var BAGPING_I18N = {
   "error_generic": "Bitte überprüfe deine Eingabe.",
   "error_photo_size": "Dieses Foto ist zu groß. Bitte ein kleineres wählen.",
   "install_prompt": "BagPing zum Startbildschirm hinzufügen",
-  "settings_notifications_off": "Aus"
+  "settings_notifications_off": "Aus",
+  "legal_note": "Dieses Dokument wird auf Englisch bereitgestellt, der maßgeblichen Fassung."
  },
  "it": {
   "auth_title": "Benvenuto su BagPing",
@@ -284,7 +288,8 @@ var BAGPING_I18N = {
   "error_generic": "Controlla i dati e riprova.",
   "error_photo_size": "Questa foto è troppo grande. Scegline una più piccola.",
   "install_prompt": "Aggiungi BagPing alla schermata Home",
-  "settings_notifications_off": "Disattivate"
+  "settings_notifications_off": "Disattivate",
+  "legal_note": "Questo documento è fornito in inglese, la versione ufficiale."
  },
  "pt": {
   "auth_title": "Bem-vindo ao BagPing",
@@ -341,7 +346,8 @@ var BAGPING_I18N = {
   "error_generic": "Verifique seus dados e tente novamente.",
   "error_photo_size": "Essa foto é muito grande. Escolha uma menor.",
   "install_prompt": "Adicione o BagPing à tela inicial",
-  "settings_notifications_off": "Desativadas"
+  "settings_notifications_off": "Desativadas",
+  "legal_note": "Este documento é fornecido em inglês, a versão oficial."
  },
  "ar": {
   "auth_title": "مرحبًا بك في BagPing",
@@ -398,7 +404,8 @@ var BAGPING_I18N = {
   "error_generic": "يرجى التحقق من إدخالك والمحاولة مجددًا.",
   "error_photo_size": "هذه الصورة كبيرة جدًا. اختر صورة أصغر.",
   "install_prompt": "أضف BagPing إلى شاشتك الرئيسية",
-  "settings_notifications_off": "معطّلة"
+  "settings_notifications_off": "معطّلة",
+  "legal_note": "هذا المستند مقدَّم باللغة الإنجليزية، وهي النسخة المعتمدة."
  },
  "zh": {
   "auth_title": "欢迎使用 BagPing",
@@ -455,7 +462,8 @@ var BAGPING_I18N = {
   "error_generic": "请检查你的输入并重试。",
   "error_photo_size": "这张照片太大了，请选择更小的。",
   "install_prompt": "将 BagPing 添加到主屏幕",
-  "settings_notifications_off": "关"
+  "settings_notifications_off": "关",
+  "legal_note": "本文件以英文提供，英文版本为准。"
  },
  "ja": {
   "auth_title": "BagPing へようこそ",
@@ -512,7 +520,8 @@ var BAGPING_I18N = {
   "error_generic": "入力を確認してもう一度お試しください。",
   "error_photo_size": "写真が大きすぎます。小さいものを選んでください。",
   "install_prompt": "BagPing をホーム画面に追加",
-  "settings_notifications_off": "オフ"
+  "settings_notifications_off": "オフ",
+  "legal_note": "本書類は英語で提供され、英語版が正本となります。"
  },
  "ko": {
   "auth_title": "BagPing에 오신 것을 환영합니다",
@@ -569,7 +578,8 @@ var BAGPING_I18N = {
   "error_generic": "입력을 확인하고 다시 시도하세요.",
   "error_photo_size": "사진이 너무 큽니다. 더 작은 것을 선택하세요.",
   "install_prompt": "BagPing을 홈 화면에 추가",
-  "settings_notifications_off": "꺼짐"
+  "settings_notifications_off": "꺼짐",
+  "legal_note": "이 문서는 영어로 제공되며, 영어 버전이 정본입니다."
  },
  "ru": {
   "auth_title": "Добро пожаловать в BagPing",
@@ -626,7 +636,8 @@ var BAGPING_I18N = {
   "error_generic": "Проверьте ввод и повторите попытку.",
   "error_photo_size": "Это фото слишком большое. Выберите поменьше.",
   "install_prompt": "Добавьте BagPing на главный экран",
-  "settings_notifications_off": "Выкл"
+  "settings_notifications_off": "Выкл",
+  "legal_note": "Этот документ предоставляется на английском языке — официальной версии."
  },
  "nl": {
   "auth_title": "Welkom bij BagPing",
@@ -683,7 +694,8 @@ var BAGPING_I18N = {
   "error_generic": "Controleer je invoer en probeer opnieuw.",
   "error_photo_size": "Deze foto is te groot. Kies een kleinere.",
   "install_prompt": "Voeg BagPing toe aan je beginscherm",
-  "settings_notifications_off": "Uit"
+  "settings_notifications_off": "Uit",
+  "legal_note": "Dit document wordt in het Engels verstrekt, de bindende versie."
  },
  "pl": {
   "auth_title": "Witamy w BagPing",
@@ -740,7 +752,8 @@ var BAGPING_I18N = {
   "error_generic": "Sprawdź dane i spróbuj ponownie.",
   "error_photo_size": "To zdjęcie jest za duże. Wybierz mniejsze.",
   "install_prompt": "Dodaj BagPing do ekranu głównego",
-  "settings_notifications_off": "Wył."
+  "settings_notifications_off": "Wył.",
+  "legal_note": "Ten dokument jest dostępny w języku angielskim, wersji wiążącej."
  },
  "tr": {
   "auth_title": "BagPing'e hoş geldiniz",
@@ -797,7 +810,8 @@ var BAGPING_I18N = {
   "error_generic": "Lütfen girişini kontrol edip tekrar dene.",
   "error_photo_size": "Bu fotoğraf çok büyük. Daha küçük birini seç.",
   "install_prompt": "BagPing'i ana ekranına ekle",
-  "settings_notifications_off": "Kapalı"
+  "settings_notifications_off": "Kapalı",
+  "legal_note": "Bu belge, geçerli sürüm olan İngilizce olarak sunulmaktadır."
  },
  "sv": {
   "auth_title": "Välkommen till BagPing",
@@ -854,7 +868,8 @@ var BAGPING_I18N = {
   "error_generic": "Kontrollera din inmatning och försök igen.",
   "error_photo_size": "Fotot är för stort. Välj ett mindre.",
   "install_prompt": "Lägg till BagPing på hemskärmen",
-  "settings_notifications_off": "Av"
+  "settings_notifications_off": "Av",
+  "legal_note": "Detta dokument tillhandahålls på engelska, den gällande versionen."
  },
  "da": {
   "auth_title": "Velkommen til BagPing",
@@ -911,7 +926,8 @@ var BAGPING_I18N = {
   "error_generic": "Tjek din indtastning, og prøv igen.",
   "error_photo_size": "Billedet er for stort. Vælg et mindre.",
   "install_prompt": "Tilføj BagPing til din startskærm",
-  "settings_notifications_off": "Fra"
+  "settings_notifications_off": "Fra",
+  "legal_note": "Dette dokument leveres på engelsk, den gældende version."
  },
  "fi": {
   "auth_title": "Tervetuloa BagPingiin",
@@ -968,7 +984,8 @@ var BAGPING_I18N = {
   "error_generic": "Tarkista syöttö ja yritä uudelleen.",
   "error_photo_size": "Kuva on liian suuri. Valitse pienempi.",
   "install_prompt": "Lisää BagPing aloitusnäyttöön",
-  "settings_notifications_off": "Pois"
+  "settings_notifications_off": "Pois",
+  "legal_note": "Tämä asiakirja toimitetaan englanniksi, joka on virallinen versio."
  },
  "el": {
   "auth_title": "Καλώς ήρθατε στο BagPing",
@@ -1025,7 +1042,8 @@ var BAGPING_I18N = {
   "error_generic": "Ελέγξτε την καταχώρισή σας και δοκιμάστε ξανά.",
   "error_photo_size": "Η φωτογραφία είναι πολύ μεγάλη. Επιλέξτε μικρότερη.",
   "install_prompt": "Προσθέστε το BagPing στην αρχική οθόνη",
-  "settings_notifications_off": "Ανενεργές"
+  "settings_notifications_off": "Ανενεργές",
+  "legal_note": "Το παρόν έγγραφο παρέχεται στα αγγλικά, την επίσημη έκδοση."
  },
  "he": {
   "auth_title": "ברוכים הבאים ל‑BagPing",
@@ -1082,6 +1100,7 @@ var BAGPING_I18N = {
   "error_generic": "בדוק את הקלט ונסה שוב.",
   "error_photo_size": "התמונה גדולה מדי. בחר תמונה קטנה יותר.",
   "install_prompt": "הוסף את BagPing למסך הבית",
-  "settings_notifications_off": "כבוי"
+  "settings_notifications_off": "כבוי",
+  "legal_note": "מסמך זה מסופק באנגלית, שהיא הגרסה המחייבת."
  }
 };

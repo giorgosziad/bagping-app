@@ -154,6 +154,12 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 .legal-overlay{position:fixed;inset:0;z-index:400;background:rgba(4,30,51,.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;flex-direction:column;align-items:center;justify-content:flex-end}
 .legal-overlay.open{display:flex}
 .legal-sheet{width:100%;max-width:480px;background:linear-gradient(180deg,#063a63 0%,#052744 100%);border-top:1px solid var(--glass-border);border-radius:24px 24px 0 0;padding:0 24px calc(24px + var(--safe-bottom));max-height:80vh;overflow-y:auto}
+.legal-doc-body{font-size:13.5px;line-height:1.6;color:rgba(255,255,255,.82);padding-bottom:8px}
+.legal-doc-body h4{font-family:'DM Serif Display',serif;font-size:15px;color:#fff;margin:16px 0 6px}
+.legal-doc-body p{margin:0 0 10px}
+.legal-doc-body .legal-note{font-size:12px;color:rgba(255,214,0,.9);background:rgba(255,214,0,.08);border-radius:8px;padding:9px 11px;margin-bottom:12px}
+.legal-doc-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;padding-top:2px}
+.legal-doc-back{background:none;border:none;color:#fff;font-size:26px;line-height:1;cursor:pointer;padding:0 4px 0 0}
 .legal-link{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--glass-border);font-size:15px;font-weight:500;cursor:pointer;color:var(--white)}
 .legal-link:last-child{border-bottom:none}
 .toast{position:fixed;bottom:calc(var(--tab-h) + var(--safe-bottom) + 12px);left:50%;transform:translateX(-50%) translateY(20px);background:rgba(5,39,68,.95);border:1px solid var(--glass-border);border-radius:40px;padding:10px 20px;font-size:13px;font-weight:500;white-space:nowrap;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;z-index:500;backdrop-filter:blur(16px)}
@@ -465,6 +471,17 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
   </div>
 </div>
 
+<div class="legal-overlay" id="legal-doc">
+  <div class="legal-sheet">
+    <div class="modal-handle"></div>
+    <div class="legal-doc-head">
+      <button class="legal-doc-back" id="legal-doc-back" aria-label="Back">&#8249;</button>
+      <div class="lang-picker-title" id="legal-doc-title" style="margin:0">Privacy Policy</div>
+    </div>
+    <div class="legal-doc-body" id="legal-doc-body"></div>
+  </div>
+</div>
+
 <div class="ping-banner" id="ping-banner">
   <div class="ping-dot"></div>
   <div class="ping-text">
@@ -498,7 +515,34 @@ const state = {
 
 const API_BASE = 'https://bagping-backend.onrender.com';
 const SMS_ENABLED = false;
-const AGENT_KEYS = { bag:'trip_watcher', flight:'travel_intel', companion:'copilot', claim:'recovery', insurance:'insurance' };      // flip to true when the real SMS verify service is live
+const AGENT_KEYS = { bag:'trip_watcher', flight:'travel_intel', companion:'copilot', claim:'recovery', insurance:'insurance' };
+const LEGAL_EFFECTIVE = 'Effective: 2026';
+const LEGAL_DOCS = {
+  privacy: `<h4>1. Who We Are</h4><p>BagPing is operated by Bionectech, Inc. ("Bionectech", "we", "us"). This Privacy Policy explains what information the BagPing app collects and how we use it.</p>
+<h4>2. Information We Collect</h4><p><b>Account:</b> your phone number, used to sign you in.<br><b>Luggage &amp; trips:</b> bag names, tag serial numbers, and trip details you enter.<br><b>Location &amp; Bluetooth:</b> used to detect your BagPing tag and alert you when your bag is near; location may be used in the background to notify you when your bag reaches the belt.<br><b>Photos:</b> any bag photo you add is stored on your device.<br><b>AI Travel Crew:</b> messages you send to the AI Crew are processed to generate a response.<br><b>Device data:</b> basic technical information needed for reliability and security.</p>
+<h4>3. How We Use Information</h4><p>To provide luggage tracking and alerts, power the AI Travel Crew, keep the service secure and reliable, and comply with law.</p>
+<h4>4. Sharing</h4><p>We do not sell your personal information. We share limited data with service providers who help us operate BagPing — including our AI provider (Anthropic) to generate AI Crew responses, and our hosting and infrastructure providers. We may disclose information if required by law.</p>
+<h4>5. Data Stored On Your Device</h4><p>Some information, including bag photos and locally saved bag details, remains on your device and is not sent to our servers unless needed to provide a feature.</p>
+<h4>6. Retention &amp; Your Choices</h4><p>We keep information while your account is active. You may request access to, correction of, or deletion of your information by contacting us.</p>
+<h4>7. Security</h4><p>We use reasonable technical and organizational measures to protect your information. No method of transmission or storage is completely secure.</p>
+<h4>8. Children</h4><p>BagPing is not directed to children under 16, and we do not knowingly collect their information.</p>
+<h4>9. International Users</h4><p>BagPing is operated from the United States. By using it, you understand your information may be processed in the United States.</p>
+<h4>10. Changes</h4><p>We may update this Policy. Material changes will be reflected by updating the effective date within the app.</p>
+<h4>11. Contact</h4><p>Bionectech, Inc. — privacy@bionectech.com</p>`,
+  terms: `<h4>1. Acceptance</h4><p>By using the BagPing app you agree to these Terms of Service. If you do not agree, do not use the app.</p>
+<h4>2. What BagPing Does</h4><p>BagPing helps you track luggage using Bluetooth Low Energy (BLE) tags and provides informational assistance through the AI Travel Crew.</p>
+<h4>3. Important Limitations</h4><p>BagPing is a convenience aid, not a guarantee. It does not prevent loss, theft, or mishandling of your luggage, and it cannot ensure recovery. Tag detection depends on hardware, battery, range, and environment, and may be delayed or unavailable. Do not rely on BagPing as your only means of safeguarding your belongings.</p>
+<h4>4. AI Travel Crew</h4><p>The AI Travel Crew provides general information only. It is not legal, insurance, financial, or professional advice, may be inaccurate, and should not be solely relied upon. Verify important information independently.</p>
+<h4>5. Your Account</h4><p>You are responsible for activity under your account and for keeping your sign-in secure.</p>
+<h4>6. Acceptable Use</h4><p>Use BagPing only for lawful purposes and do not misuse, disrupt, or attempt to gain unauthorized access to the service.</p>
+<h4>7. Hardware Tags</h4><p>Physical BagPing tags are subject to their own product terms and to battery and range limitations.</p>
+<h4>8. Intellectual Property</h4><p>BagPing, its software, and its content are owned by Bionectech, Inc. and protected by law.</p>
+<h4>9. Disclaimers</h4><p>The service is provided "as is" and "as available" without warranties of any kind, including accuracy, availability, or fitness for a particular purpose, to the fullest extent permitted by law.</p>
+<h4>10. Limitation of Liability</h4><p>To the fullest extent permitted by law, Bionectech is not liable for any lost, delayed, damaged, or stolen baggage, or for any indirect, incidental, or consequential damages arising from your use of BagPing.</p>
+<h4>11. Changes &amp; Termination</h4><p>We may modify or discontinue the service, or update these Terms, at any time. Continued use after changes means you accept them.</p>
+<h4>12. Governing Law</h4><p>These Terms are governed by the laws of the State of Texas, USA, without regard to conflict-of-laws rules.</p>
+<h4>13. Contact</h4><p>Bionectech, Inc. — legal@bionectech.com</p>`
+};      // flip to true when the real SMS verify service is live
 const DEMO_CODE = '123456';     // beta access code while SMS is disabled
 
 function detectLang(){
@@ -847,6 +891,16 @@ function openLangPicker(){
 }
 function closeLangPicker(){ document.getElementById('lang-picker').classList.remove('open'); }
 
+function openLegalDoc(kind){
+  var doc = (typeof LEGAL_DOCS !== 'undefined') ? LEGAL_DOCS[kind] : '';
+  if (!doc) return;
+  document.getElementById('legal-doc-title').textContent = (kind === 'privacy') ? t('legal_privacy') : t('legal_terms');
+  var note = t('legal_note');
+  document.getElementById('legal-doc-body').innerHTML =
+    '<div class="legal-note">' + note + '</div>' + doc;
+  document.getElementById('legal-doc').classList.add('open');
+}
+function closeLegalDoc(){ document.getElementById('legal-doc').classList.remove('open'); }
 function openLegal(){ document.getElementById('legal-sheet').classList.add('open'); }
 function closeLegal(){ document.getElementById('legal-sheet').classList.remove('open'); }
 
@@ -910,6 +964,11 @@ function bind(){
   });
   document.getElementById('settings-notifications-row').addEventListener('click', toggleNotif);
   document.getElementById('settings-legal-row').addEventListener('click', openLegal);
+  document.querySelectorAll('.legal-link').forEach(function(a){
+    a.addEventListener('click', function(e){ e.preventDefault(); openLegalDoc(a.getAttribute('data-legal')); });
+  });
+  document.getElementById('legal-doc-back').addEventListener('click', closeLegalDoc);
+  document.getElementById('legal-doc').addEventListener('click', function(e){ if (e.target.id === 'legal-doc') closeLegalDoc(); });
   document.getElementById('legal-sheet').addEventListener('click', e=>{
     if (e.target.id==='legal-sheet') closeLegal();
   });
