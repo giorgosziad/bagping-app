@@ -116,6 +116,52 @@
     }).catch(function () { /* user cancelled */ });
   }
 
+  // ---- proximity ringtone + haptics (scales with closeness 0..1) -----------
+  var _audioCtx = null, _fbTimer = null;
+  function resumeAudio(){
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!_audioCtx) _audioCtx = new AC();
+      if (_audioCtx.state === 'suspended') _audioCtx.resume();
+    } catch(e){}
+  }
+  function beep(vol, freq){
+    if (!_audioCtx) return;
+    try {
+      var now = _audioCtx.currentTime;
+      var o = _audioCtx.createOscillator(), g = _audioCtx.createGain();
+      o.type = 'sine'; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.linearRampToValueAtTime(vol, now + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+      o.connect(g); g.connect(_audioCtx.destination);
+      o.start(now); o.stop(now + 0.22);
+    } catch(e){}
+  }
+  function stopFeedback(){ if (_fbTimer){ clearInterval(_fbTimer); _fbTimer = null; } }
+  function bucketToCloseness(p){ return p==='immediate'?1 : p==='near'?0.6 : p==='far'?0.28 : 0; }
+  // closeness 0 (far) .. 1 (right here): louder + higher + faster + stronger haptics
+  function proximityFeedback(closeness){
+    stopFeedback();
+    if (!(closeness > 0)) return;
+    var vol = 0.06 + closeness * 0.55;
+    var freq = 620 + closeness * 700;
+    var interval = Math.max(160, 900 - closeness * 720);
+    var H = cap('Haptics');
+    function pulse(){
+      beep(vol, freq);
+      if (H) {
+        var style = closeness > 0.72 ? 'HEAVY' : (closeness > 0.4 ? 'MEDIUM' : 'LIGHT');
+        try { H.impact({ style: style }); } catch(e){ try { H.vibrate({ duration: Math.round(40 + closeness*140) }); } catch(e2){} }
+      } else if (navigator.vibrate) {
+        try { navigator.vibrate(Math.round(40 + closeness*160)); } catch(e){}
+      }
+    }
+    pulse();
+    _fbTimer = setInterval(pulse, interval);
+  }
+
   // ---- the ping (rich notification with the bag photo) ---------------------
   function firePing(proximityLabel) {
     if (state.pinged) return;
@@ -147,6 +193,7 @@
   function startBelt() {
     if (!state.activated) { toast('Activate your BagPing device first.'); return; }
     state.pinged = false;
+    resumeAudio();
     if (!isNative() || !locMgr()) {
       // web / no plugin: demo still works; real monitoring only in the installed app
       setStatus('Belt Radar runs in the installed app. Try Demo below.');
@@ -172,19 +219,22 @@
         lm.stopMonitoringForRegion(region);
       } catch (e) {}
     }
+    stopFeedback();
     state.monitoring = false; setMeter('unknown'); render();
   }
   function makeDelegate(lm) {
     var d = new lm.Delegate();
     d.didRangeBeaconsInRegion = function (result) {
       var beacons = (result && result.beacons) || [];
-      var best = 'unknown';
+      var best = 'unknown', bestAcc = null;
       var rank = { immediate: 3, near: 2, far: 1, unknown: 0 };
       for (var i = 0; i < beacons.length; i++) {
         var p = beacons[i].proximity || 'unknown';
-        if (rank[p] > rank[best]) best = p;
+        var acc = (typeof beacons[i].accuracy === 'number' && beacons[i].accuracy >= 0) ? beacons[i].accuracy : null;
+        if (rank[p] > rank[best]) { best = p; bestAcc = acc; }
       }
-      onProximity(best);
+      var closeness = (bestAcc != null) ? Math.max(0, Math.min(1, 1 - (bestAcc / 8))) : bucketToCloseness(best);
+      onProximity(best, closeness);
       return result;
     };
     d.didEnterRegion = function (r) { onProximity('far'); return r; };
@@ -194,9 +244,11 @@
   }
 
   // map beacon proximity -> honest meter + ping
-  function onProximity(p) {
+  function onProximity(p, closeness) {
     state.lastProximity = p;
     setMeter(p);
+    if (typeof closeness !== 'number') closeness = bucketToCloseness(p);
+    proximityFeedback(closeness);
     if (p === 'immediate' || p === 'near') firePing('here');
     else if (p === 'far') firePing('approaching');
   }
@@ -205,14 +257,15 @@
   function runDemo() {
     if (!state.activated) { activate(state.serial || 'DEMO-0001'); }
     state.pinged = false;
+    resumeAudio();
     setStatus('Demo: simulating your bag approaching the belt...');
-    var seq = ['far', 'far', 'near', 'immediate'];
+    var seq = [ {p:'far',c:0.2}, {p:'far',c:0.35}, {p:'near',c:0.55}, {p:'near',c:0.72}, {p:'immediate',c:0.88}, {p:'immediate',c:1.0} ];
     var i = 0;
     var t = setInterval(function () {
-      onProximity(seq[i]);
+      onProximity(seq[i].p, seq[i].c);
       i++;
-      if (i >= seq.length) { clearInterval(t); setStatus('Demo complete - that is the real ping.'); }
-    }, 1200);
+      if (i >= seq.length) { clearInterval(t); setStatus('Demo complete - that is the real ping.'); setTimeout(stopFeedback, 2600); }
+    }, 1100);
   }
 
   // ---- UI (self-mounted Belt Radar) ----------------------------------------
