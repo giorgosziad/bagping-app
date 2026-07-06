@@ -474,12 +474,14 @@ const state = {
   notif: true,
   phone: '',
   currentAgent: 'bag',
+  token: '',  // backend JWT (set at login when real auth is wired)
   chats: {},
   sending: false
 };
 
 const API_BASE = 'https://bagping-backend.onrender.com';
-const SMS_ENABLED = false;      // flip to true when the real SMS verify service is live
+const SMS_ENABLED = false;
+const AGENT_KEYS = { bag:'trip_watcher', flight:'travel_intel', companion:'copilot', claim:'recovery', insurance:'insurance' };      // flip to true when the real SMS verify service is live
 const DEMO_CODE = '123456';     // beta access code while SMS is disabled
 
 function detectLang(){
@@ -493,6 +495,7 @@ function loadState(){
   try {
     state.lang = detectLang();
     state.authed = localStorage.getItem('bp_authed') === '1';
+    state.token = localStorage.getItem('bp_token') || '';
     state.phone = localStorage.getItem('bp_phone') || '';
     state.bags = JSON.parse(localStorage.getItem('bp_bags') || '[]');
     state.notif = localStorage.getItem('bp_notif') !== '0';
@@ -503,6 +506,7 @@ function persist(){
   try {
     localStorage.setItem('bp_lang', state.lang);
     localStorage.setItem('bp_authed', state.authed ? '1' : '0');
+    localStorage.setItem('bp_token', state.token || '');
     localStorage.setItem('bp_phone', state.phone);
     localStorage.setItem('bp_bags', JSON.stringify(state.bags));
     localStorage.setItem('bp_notif', state.notif ? '1' : '0');
@@ -725,6 +729,30 @@ function hideTyping(){
   if (el) el.remove();
 }
 
+async function ensureBackendToken(){
+  if (state.token) return state.token;
+  var digits = (state.phone || '').replace(/[^0-9]/g,'') || 'guest';
+  var email = 'g' + digits + '@guest.bagping.app';
+  var password = 'BPguest!' + digits + '!2026';
+  try {
+    var r = await fetch(API_BASE + '/auth/register', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email: email, password: password, full_name: 'BagPing User', phone: state.phone })
+    });
+    if (r.status === 409) {
+      r = await fetch(API_BASE + '/auth/login', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ email: email, password: password })
+      });
+    }
+    if (r && r.ok) {
+      var d = await r.json();
+      if (d && d.token) { state.token = d.token; persist(); return d.token; }
+    }
+  } catch(e){}
+  return '';
+}
+
 async function sendChatMessage(){
   if (state.sending) return;
   const input = document.getElementById('chat-input');
@@ -738,16 +766,20 @@ async function sendChatMessage(){
   const ctrl = new AbortController();
   const timer = setTimeout(()=>ctrl.abort(), 60000);
   try {
-    const r = await fetch(API_BASE + '/api/chat', {
-      method:'POST', headers:{'Content-Type':'application/json'},
+    if (!state.token) { await ensureBackendToken(); }
+    const _key = AGENT_KEYS[state.currentAgent] || 'copilot';
+    const _headers = {'Content-Type':'application/json'};
+    if (state.token) _headers['Authorization'] = 'Bearer ' + state.token;
+    const r = await fetch(API_BASE + '/api/chat/' + _key, {
+      method:'POST', headers:_headers,
       signal: ctrl.signal,
-      body: JSON.stringify({agent: state.currentAgent, message: text, lang: state.lang})
+      body: JSON.stringify({ message: text, context: { lang: state.lang } })
     });
     clearTimeout(timer);
     hideTyping();
     if (!r.ok) throw new Error('http');
     const data = await r.json();
-    appendMessage('agent', data.reply || data.text || t('chat_error'));
+    appendMessage('agent', data.text || data.reply || t('chat_error'));
   } catch(e){
     clearTimeout(timer);
     hideTyping();
