@@ -166,7 +166,7 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 .legal-doc-back{background:none;border:none;color:#fff;font-size:26px;line-height:1;cursor:pointer;padding:0 4px 0 0}
 .legal-link{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--glass-border);font-size:15px;font-weight:500;cursor:pointer;color:var(--white)}
 .legal-link:last-child{border-bottom:none}
-.toast{position:fixed;bottom:calc(var(--tab-h) + var(--safe-bottom) + 12px);left:50%;transform:translateX(-50%) translateY(20px);background:rgba(5,39,68,.95);border:1px solid var(--glass-border);border-radius:40px;padding:10px 20px;font-size:13px;font-weight:500;white-space:nowrap;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;z-index:500;backdrop-filter:blur(16px)}
+.toast{position:fixed;bottom:calc(var(--tab-h) + var(--safe-bottom) + 12px);left:50%;transform:translateX(-50%) translateY(20px);background:rgba(5,39,68,.95);border:1px solid var(--glass-border);border-radius:40px;padding:10px 20px;font-size:13px;font-weight:500;white-space:normal;max-width:88vw;text-align:center;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;z-index:500;backdrop-filter:blur(16px)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .lang-picker-overlay{position:fixed;inset:0;z-index:350;background:rgba(4,30,51,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center}
 .lang-picker-overlay.open{display:flex}
@@ -506,6 +506,7 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 <div class="toast" id="toast"></div>
 
 <script src="i18n.js"></script>
+<script src="i18n-claim.js"></script>
 <script>
 const LANG_NAMES = {en:'English',es:'Español',fr:'Français',de:'Deutsch',it:'Italiano',pt:'Português',ar:'العربية',zh:'中文',ja:'日本語',ko:'한국어',ru:'Русский',nl:'Nederlands',pl:'Polski',tr:'Türkçe',sv:'Svenska',da:'Dansk',fi:'Suomi',el:'Ελληνικά',he:'עברית'};
 const RTL_LANGS = ['ar','he'];
@@ -690,7 +691,7 @@ function toast(msg){
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toast._t);
-  toast._t = setTimeout(()=>t.classList.remove('show'), 2200);
+  toast._t = setTimeout(()=>t.classList.remove('show'), 3200);
 }
 
 async function sendCode(){
@@ -755,6 +756,12 @@ function backToPhone(){
 }
 
 function openChat(agent){
+  /* JOB 3: every route into the Claim Helper / Recovery agent goes to the
+     structured claim flow, not a conversation. */
+  if (agent === 'claim' && window.BagPingClaim && typeof window.BagPingClaim.open === 'function'){
+    window.BagPingClaim.open();
+    return;
+  }
   state.currentAgent = agent;
   const overlay = document.getElementById('chat-overlay');
   document.getElementById('chat-agent-name').textContent = t('crew_'+agent);
@@ -826,36 +833,91 @@ function toggleVoice(){
   state.voiceOn = !state.voiceOn; persist(); setVoiceUI();
   if (!state.voiceOn) { try { if (window.speechSynthesis) window.speechSynthesis.cancel(); var T=capPlugin('TextToSpeech'); if (T) T.stop(); } catch(e){} }
 }
+/* JOB 1: the mic can no longer fail silently. Every failure path names itself
+   to the user (localized) and to the console. */
+function micFail(msg, err){
+  _listening = false; setMicUI(false);
+  var detail = '';
+  if (err) {
+    detail = err.message || err.errorMessage || (typeof err === 'string' ? err : '');
+    console.error('[BagPing mic]', err);
+  }
+  toast(detail ? (msg + ' (' + detail + ')') : msg);
+}
 async function toggleMic(){
   var input = document.getElementById('chat-input');
   var SR = capPlugin('SpeechRecognition');
   if (SR) {
-    if (_listening) { try { await SR.stop(); } catch(e){} _listening=false; setMicUI(false); return; }
+    /* Tap while listening = stop. */
+    if (_listening) {
+      try { await SR.stop(); } catch(e){ console.error('[BagPing mic] stop failed', e); }
+      _listening = false; setMicUI(false);
+      return;
+    }
     try {
-      var perm = await SR.checkPermissions();
-      if (!perm || perm.speechRecognition !== 'granted') {
-        var rp = await SR.requestPermissions();
-        if (!rp || rp.speechRecognition !== 'granted') { toast('Microphone access is needed to talk to the crew.'); return; }
+      /* 1. Is native speech recognition available at all on this device? */
+      if (typeof SR.available === 'function') {
+        var av = await SR.available();
+        if (av && av.available === false) { micFail(t('mic_unavailable')); return; }
       }
+      /* 2. Permission. If the user denied once, iOS/Android will NOT re-prompt:
+            requestPermissions resolves 'denied' immediately. Tell them to fix
+            it in Settings instead of leaving a dead button. */
+      var perm = null;
+      try { perm = await SR.checkPermissions(); }
+      catch(e){ micFail(t('mic_error'), e); return; }
+      var granted = perm && perm.speechRecognition === 'granted';
+      if (!granted) {
+        var rp = null;
+        try { rp = await SR.requestPermissions(); }
+        catch(e){ micFail(t('mic_error'), e); return; }
+        granted = rp && rp.speechRecognition === 'granted';
+        if (!granted) { micFail(t('mic_denied')); return; }
+      }
+      /* 3. Bind listeners BEFORE start. */
       try { if (SR.removeAllListeners) await SR.removeAllListeners(); } catch(e){}
       SR.addListener('partialResults', function(data){
-        if (data && data.matches && data.matches.length){ input.value = data.matches[0]; input.style.height='auto'; input.style.height=Math.min(input.scrollHeight,120)+'px'; }
+        if (data && data.matches && data.matches.length){
+          input.value = data.matches[0];
+          input.style.height = 'auto';
+          input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+        }
       });
+      /* listeningState keeps our UI in sync when the OS ends the session
+         (silence timeout, interruption) instead of the user tapping stop. */
+      SR.addListener('listeningState', function(data){
+        var s = data && data.status;
+        if (s === 'stopped') { _listening = false; setMicUI(false); }
+        if (s === 'started') { _listening = true; setMicUI(true); }
+      });
+      /* 4. Start. With partialResults:true the promise resolves as soon as
+            listening STARTS - not when it ends. The old code flipped the UI
+            off right here, desyncing state so the next tap double-started
+            and threw into a silent catch. Stay in the listening state. */
       _listening = true; setMicUI(true);
       await SR.start({ language: voiceLang(), maxResults: 2, partialResults: true, popup: false });
-      _listening = false; setMicUI(false);
-    } catch(e){ _listening=false; setMicUI(false); }
+    } catch(e){
+      micFail(t('mic_error'), e);
+    }
     return;
   }
+  /* Web fallback (browser / PWA). WKWebView has no Web Speech recognition,
+     so inside the native app this branch firing means the Capacitor plugin
+     is NOT in the binary - which is itself the diagnosis. */
   var WSR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!WSR) { toast('Voice input is not available on this device.'); return; }
+  if (!WSR) { micFail(t('mic_unavailable')); return; }
   if (_listening && window._wsr) { try { window._wsr.stop(); } catch(e){} return; }
   var r = new WSR(); window._wsr = r;
   r.lang = voiceLang(); r.interimResults = true; r.maxAlternatives = 1;
-  r.onresult = function(ev){ var t=''; for (var i=0;i<ev.results.length;i++) t+=ev.results[i][0].transcript; input.value=t; };
+  r.onresult = function(ev){ var s=''; for (var i=0;i<ev.results.length;i++) s+=ev.results[i][0].transcript; input.value=s; };
   r.onend = function(){ _listening=false; setMicUI(false); };
-  r.onerror = function(){ _listening=false; setMicUI(false); };
-  _listening=true; setMicUI(true); try{ r.start(); }catch(e){ _listening=false; setMicUI(false); }
+  r.onerror = function(ev){
+    var code = ev && ev.error;
+    if (code === 'not-allowed' || code === 'service-not-allowed') micFail(t('mic_denied'));
+    else micFail(t('mic_error'), code || null);
+  };
+  _listening=true; setMicUI(true);
+  try{ r.start(); }catch(e){ micFail(t('mic_error'), e); }
 }
 
 async function ensureBackendToken(){
@@ -1069,6 +1131,12 @@ function boot(){
 
 if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
 else boot();
+
+/* JOB 3: token bridge for the claim flow (claim-flow.js).
+   The real JWT lives on state.token, minted by ensureBackendToken(). */
+window.BP_GET_TOKEN = function(){ return state.token || ''; };
+window.BP_ENSURE_TOKEN = function(){ return ensureBackendToken(); };
+window.BP_CLEAR_TOKEN = function(){ state.token = ''; persist(); };
 </script>
 <script>
 /* BagPing install prompt */
@@ -1084,6 +1152,7 @@ else boot();
   window.addEventListener('appinstalled',function(){ deferred=null; hide(); });
 })();
 </script>
-  <script src="bagping-native.js"></script>
+<script src="claim-flow.js"></script>
+<script src="bagping-native.js"></script>
 </body>
 </html>

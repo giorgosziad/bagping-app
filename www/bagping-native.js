@@ -1,17 +1,10 @@
 /*
  * BagPing native layer - the real belt ping.
- * - iBeacon detection (Core Location on iOS, AltBeacon on Android) via cordova-plugin-ibeacon
- * - Serial activation -> backend maps serial to this beacon
- * - Proximity meter (Approaching / Close / Here now) - honest, not fake meters
- * - Rich local notification carrying the user's on-device bag photo
- * - Demo/Review mode so Apple can test without hardware
- *
- * v2 UI: the Belt Radar is now a labelled HERO CARD mounted into #tab-home
- * (right under the belt hero), not a floating pill. The old fixed FAB at
- * right:16px/bottom:16px, z-index 99999 sat directly on top of the Settings
- * tab button (tab bar z-index is 100) - that was the "radar covers settings"
- * bug. The card also only shows when the Home tab is visible, so it no
- * longer floats over the login screen.
+ * v3: every user-facing string routes through T() (i18n.js key, English
+ * fallback); adds the animated Belt Hero scene (Job 4) - conveyor slats,
+ * bags in motion, ping rings from the tagged bag; respects
+ * prefers-reduced-motion. Radar card design unchanged from v2 (approved
+ * in build 20).
  */
 (function () {
   'use strict';
@@ -23,17 +16,21 @@
   var SKY = '#0099E6', DEEP = '#006BB5', NAVY = '#052744', YELLOW = '#FFD600', GREEN = '#12a577';
 
   var state = {
-    activated: false,
-    serial: null,
-    major: null,
-    minor: null,
-    photo: null,        // data URL of the bag photo (on-device only)
-    monitoring: false,
-    lastProximity: 'unknown',
-    pinged: false
+    activated: false, serial: null, major: null, minor: null,
+    photo: null, monitoring: false, lastProximity: 'unknown', pinged: false
   };
 
-  // ---- tiny helpers ---------------------------------------------------------
+  /* ---- i18n: key from i18n.js when present, English fallback otherwise ---- */
+  function T(key, fb) {
+    try {
+      if (typeof window.t === 'function') {
+        var v = window.t(key);
+        if (v && v !== key) return v;
+      }
+    } catch (e) {}
+    return fb;
+  }
+
   function isNative() {
     return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
   }
@@ -50,12 +47,9 @@
     return e;
   }
 
-  // ---- persistence (on-device only) ----------------------------------------
+  /* ---- persistence ---- */
   function save() {
-    var data = {
-      activated: state.activated, serial: state.serial,
-      major: state.major, minor: state.minor, photo: state.photo
-    };
+    var data = { activated: state.activated, serial: state.serial, major: state.major, minor: state.minor, photo: state.photo };
     var P = cap('Preferences');
     if (P) { P.set({ key: 'bagping.state', value: JSON.stringify(data) }); }
     else { try { localStorage.setItem('bagping.state', JSON.stringify(data)); } catch (e) {} }
@@ -81,12 +75,11 @@
     state.photo = d.photo || null;
   }
 
-  // ---- serial activation ----------------------------------------------------
+  /* ---- serial activation ---- */
   function activate(serial) {
     serial = (serial || '').trim();
-    if (!serial) { toast('Enter the serial number from your BagPing device.'); return; }
-    setStatus('Activating ' + serial + '...');
-    // Backend maps serial -> beacon major/minor for this account.
+    if (!serial) { toast(T('radar_enter_serial', 'Enter the serial number from your BagPing device.')); return; }
+    setStatus(T('radar_activating', 'Activating') + ' ' + serial + '...');
     fetch(BACKEND + '/activate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -97,40 +90,37 @@
         state.major = (d && d.beaconMajor != null) ? d.beaconMajor : null;
         state.minor = (d && d.beaconMinor != null) ? d.beaconMinor : null;
         save(); render();
-        toast('BagPing activated. You are ready to fly.');
+        toast(T('radar_activated_toast', 'BagPing activated. You are ready to fly.'));
       })
       .catch(function () {
-        // Graceful fallback: activate locally, monitor the BagPing UUID for any of our tags.
         state.activated = true; state.serial = serial; state.major = null; state.minor = null;
         save(); render();
-        toast('Activated. (Tag will be recognized at the belt.)');
+        toast(T('radar_activated_fallback', 'Activated. (Tag will be recognized at the belt.)'));
       });
   }
 
-  // ---- bag photo (on-device only) ------------------------------------------
+  /* ---- bag photo ---- */
   function capturePhoto() {
     var Camera = cap('Camera');
-    if (!Camera) { toast('Camera is available in the installed app.'); return; }
-    Camera.getPhoto({
-      quality: 70, allowEditing: false, resultType: 'dataUrl',
-      source: 'CAMERA', width: 900
-    }).then(function (photo) {
-      state.photo = photo.dataUrl; save(); render();
-      toast('Bag photo saved on your device.');
-    }).catch(function () { /* user cancelled */ });
+    if (!Camera) { toast(T('radar_camera_native', 'Camera is available in the installed app.')); return; }
+    Camera.getPhoto({ quality: 70, allowEditing: false, resultType: 'dataUrl', source: 'CAMERA', width: 900 })
+      .then(function (photo) {
+        state.photo = photo.dataUrl; save(); render();
+        toast(T('radar_photo_saved', 'Bag photo saved on your device.'));
+      }).catch(function () { /* cancelled */ });
   }
 
-  // ---- proximity ringtone + haptics (scales with closeness 0..1) -----------
+  /* ---- proximity ringtone + haptics ---- */
   var _audioCtx = null, _fbTimer = null;
-  function resumeAudio(){
+  function resumeAudio() {
     try {
       var AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return;
       if (!_audioCtx) _audioCtx = new AC();
       if (_audioCtx.state === 'suspended') _audioCtx.resume();
-    } catch(e){}
+    } catch (e) {}
   }
-  function beep(vol, freq){
+  function beep(vol, freq) {
     if (!_audioCtx) return;
     try {
       var now = _audioCtx.currentTime;
@@ -141,49 +131,47 @@
       g.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
       o.connect(g); g.connect(_audioCtx.destination);
       o.start(now); o.stop(now + 0.22);
-    } catch(e){}
+    } catch (e) {}
   }
-  function stopFeedback(){ if (_fbTimer){ clearInterval(_fbTimer); _fbTimer = null; } }
-  function bucketToCloseness(p){ return p==='immediate'?1 : p==='near'?0.6 : p==='far'?0.28 : 0; }
-  // closeness 0 (far) .. 1 (right here): louder + higher + faster + stronger haptics
-  function proximityFeedback(closeness){
+  function stopFeedback() { if (_fbTimer) { clearInterval(_fbTimer); _fbTimer = null; } }
+  function bucketToCloseness(p) { return p === 'immediate' ? 1 : p === 'near' ? 0.6 : p === 'far' ? 0.28 : 0; }
+  function proximityFeedback(closeness) {
     stopFeedback();
     if (!(closeness > 0)) return;
     var vol = 0.06 + closeness * 0.55;
     var freq = 620 + closeness * 700;
     var interval = Math.max(160, 900 - closeness * 720);
     var H = cap('Haptics');
-    function pulse(){
+    function pulse() {
       beep(vol, freq);
       if (H) {
         var style = closeness > 0.72 ? 'HEAVY' : (closeness > 0.4 ? 'MEDIUM' : 'LIGHT');
-        try { H.impact({ style: style }); } catch(e){ try { H.vibrate({ duration: Math.round(40 + closeness*140) }); } catch(e2){} }
+        try { H.impact({ style: style }); } catch (e) { try { H.vibrate({ duration: Math.round(40 + closeness * 140) }); } catch (e2) {} }
       } else if (navigator.vibrate) {
-        try { navigator.vibrate(Math.round(40 + closeness*160)); } catch(e){}
+        try { navigator.vibrate(Math.round(40 + closeness * 160)); } catch (e) {}
       }
     }
     pulse();
     _fbTimer = setInterval(pulse, interval);
   }
 
-  // ---- the ping (rich notification with the bag photo) ---------------------
+  /* ---- the ping ---- */
   function firePing(proximityLabel) {
     if (state.pinged) return;
     state.pinged = true;
     var LN = cap('LocalNotifications');
     var body = (proximityLabel === 'here')
-      ? 'Your bag is at the belt now. Grab it!'
-      : 'Your bag is arriving at the carousel.';
+      ? T('radar_ping_here', 'Your bag is at the belt now. Grab it!')
+      : T('radar_ping_approaching', 'Your bag is arriving at the carousel.');
     if (LN) {
       var opts = {
         notifications: [{
           id: Math.floor(Math.random() * 100000),
-          title: 'BagPing - ' + (proximityLabel === 'here' ? 'Here now' : 'Approaching'),
+          title: 'BagPing - ' + (proximityLabel === 'here' ? T('radar_here', 'Here now') : T('radar_approaching', 'Approaching')),
           body: body,
           smallIcon: 'ic_stat_bagping'
         }]
       };
-      // attach the on-device bag photo so the user sees their own bag (Uber-style)
       if (state.photo) {
         opts.notifications[0].attachments = [{ id: 'bag', url: state.photo }];
         opts.notifications[0].largeIcon = state.photo;
@@ -193,14 +181,13 @@
     banner(body);
   }
 
-  // ---- beacon monitoring ----------------------------------------------------
+  /* ---- beacon monitoring ---- */
   function startBelt() {
-    if (!state.activated) { toast('Activate your BagPing device first.'); return; }
+    if (!state.activated) { toast(T('radar_activate_first', 'Activate your BagPing device first.')); return; }
     state.pinged = false;
     resumeAudio();
     if (!isNative() || !locMgr()) {
-      // web / no plugin: demo still works; real monitoring only in the installed app
-      setStatus('Belt Radar runs in the installed app. Try Demo below.');
+      setStatus(T('radar_native_only', 'Belt Radar runs in the installed app. Try Demo below.'));
       return;
     }
     var lm = locMgr();
@@ -211,8 +198,8 @@
       (state.minor != null ? state.minor : undefined));
     lm.startMonitoringForRegion(region)
       .then(function () { return lm.startRangingBeaconsInRegion(region); })
-      .then(function () { state.monitoring = true; setStatus('Belt Radar on. Watching for your bag...'); render(); })
-      .catch(function () { setStatus('Could not start Belt Radar. Check Bluetooth + Location.'); });
+      .then(function () { state.monitoring = true; setStatus(T('radar_watching_status', 'Belt Radar on. Watching for your bag...')); render(); })
+      .catch(function () { setStatus(T('radar_start_failed', 'Could not start Belt Radar. Check Bluetooth + Location.')); });
   }
   function stopBelt() {
     var lm = locMgr();
@@ -246,8 +233,6 @@
     d.didDetermineStateForRegion = function (r) { return r; };
     return d;
   }
-
-  // map beacon proximity -> honest meter + ping
   function onProximity(p, closeness) {
     state.lastProximity = p;
     setMeter(p);
@@ -257,28 +242,101 @@
     else if (p === 'far') firePing('approaching');
   }
 
-  // ---- DEMO / review mode (no hardware) ------------------------------------
+  /* ---- demo ---- */
   function runDemo() {
     if (!state.activated) { activate(state.serial || 'DEMO-0001'); }
     state.pinged = false;
     resumeAudio();
-    setStatus('Demo: simulating your bag approaching the belt...');
-    var seq = [ {p:'far',c:0.2}, {p:'far',c:0.35}, {p:'near',c:0.55}, {p:'near',c:0.72}, {p:'immediate',c:0.88}, {p:'immediate',c:1.0} ];
+    setStatus(T('radar_demo_running', 'Demo: simulating your bag approaching the belt...'));
+    var seq = [{ p: 'far', c: 0.2 }, { p: 'far', c: 0.35 }, { p: 'near', c: 0.55 }, { p: 'near', c: 0.72 }, { p: 'immediate', c: 0.88 }, { p: 'immediate', c: 1.0 }];
     var i = 0;
     var t = setInterval(function () {
       onProximity(seq[i].p, seq[i].c);
       i++;
-      if (i >= seq.length) { clearInterval(t); setStatus('Demo complete - that is the real ping.'); setTimeout(stopFeedback, 2600); }
+      if (i >= seq.length) { clearInterval(t); setStatus(T('radar_demo_done', 'Demo complete - that is the real ping.')); setTimeout(stopFeedback, 2600); }
     }, 1100);
   }
 
-  // ---- UI: hero card on Home + full panel -----------------------------------
+  /* ---- JOB 4: the beautiful belt ------------------------------------------
+   * Replaces the SVG inside .belt-hero with an animated scene: a conveyor
+   * with moving slats, three bags sliding through, and yellow ping rings
+   * expanding from the tagged bag - "pings as it gets closer" made visible.
+   * Text/children of .belt-hero other than its <svg> are left untouched.
+   * Respects prefers-reduced-motion (animations pause).
+   */
+  function beautifyBelt() {
+    var hero = document.querySelector('.belt-hero');
+    if (!hero || hero.querySelector('#bp-belt-scene')) return;
+
+    var style = document.createElement('style');
+    style.textContent =
+      '#bp-belt-scene{width:100%;height:auto;display:block}' +
+      '@keyframes bpSlats{to{stroke-dashoffset:-28px}}' +
+      '@keyframes bpBagA{0%{transform:translateX(-90px)}100%{transform:translateX(430px)}}' +
+      '@keyframes bpBagB{0%{transform:translateX(-220px)}100%{transform:translateX(300px)}}' +
+      '@keyframes bpBagC{0%{transform:translateX(-360px)}100%{transform:translateX(160px)}}' +
+      '@keyframes bpRing{0%{r:6;opacity:.9}100%{r:34;opacity:0}}' +
+      '@keyframes bpGlow{0%,100%{opacity:.35}50%{opacity:.7}}' +
+      '#bp-belt-scene .bp-slats{animation:bpSlats 1.2s linear infinite}' +
+      '#bp-belt-scene .bp-bag-a{animation:bpBagA 9s linear infinite}' +
+      '#bp-belt-scene .bp-bag-b{animation:bpBagB 9s linear infinite}' +
+      '#bp-belt-scene .bp-bag-c{animation:bpBagC 9s linear infinite}' +
+      '#bp-belt-scene .bp-ring1{animation:bpRing 2s ease-out infinite}' +
+      '#bp-belt-scene .bp-ring2{animation:bpRing 2s ease-out infinite 0.66s}' +
+      '#bp-belt-scene .bp-ring3{animation:bpRing 2s ease-out infinite 1.33s}' +
+      '#bp-belt-scene .bp-glow{animation:bpGlow 3s ease-in-out infinite}' +
+      '@media (prefers-reduced-motion: reduce){#bp-belt-scene *{animation:none !important}}';
+    document.head.appendChild(style);
+
+    var wrap = document.createElement('div');
+    wrap.innerHTML =
+      '<svg id="bp-belt-scene" viewBox="0 0 400 170" role="img" aria-label="' + T('belt_scene_label', 'Bags moving on the arrival belt; your tagged bag is pinging') + '">' +
+        '<defs>' +
+          '<linearGradient id="bpSkyG" x1="0" y1="0" x2="0" y2="1">' +
+            '<stop offset="0" stop-color="#0a3d63"/><stop offset="1" stop-color="' + NAVY + '"/>' +
+          '</linearGradient>' +
+          '<clipPath id="bpBeltClip"><rect x="18" y="96" width="364" height="46" rx="23"/></clipPath>' +
+        '</defs>' +
+        '<rect width="400" height="170" fill="url(#bpSkyG)" rx="18"/>' +
+        /* terminal windows */
+        '<g opacity=".22"><rect x="34" y="22" width="52" height="30" rx="4" fill="' + SKY + '"/><rect x="96" y="22" width="52" height="30" rx="4" fill="' + SKY + '"/><rect x="158" y="22" width="52" height="30" rx="4" fill="' + SKY + '"/><rect x="220" y="22" width="52" height="30" rx="4" fill="' + SKY + '"/><rect x="282" y="22" width="52" height="30" rx="4" fill="' + SKY + '"/></g>' +
+        /* carousel sign */
+        '<rect x="160" y="60" width="80" height="24" rx="6" fill="#0a2f4d" stroke="' + SKY + '" stroke-width="1"/>' +
+        '<text x="200" y="76" text-anchor="middle" font-family="Outfit,sans-serif" font-size="12" font-weight="700" fill="#dff0ff">B4</text>' +
+        /* belt body */
+        '<rect x="18" y="96" width="364" height="46" rx="23" fill="#0a2f4d" stroke="#16466b" stroke-width="1.5"/>' +
+        '<line class="bp-slats" x1="24" y1="119" x2="376" y2="119" stroke="#123a5c" stroke-width="38" stroke-dasharray="4 24" stroke-linecap="butt"/>' +
+        /* bags, clipped to the belt */
+        '<g clip-path="url(#bpBeltClip)">' +
+          '<g class="bp-bag-b"><rect x="0" y="103" width="42" height="30" rx="6" fill="#1d5d8f"/><rect x="14" y="97" width="14" height="8" rx="3" fill="none" stroke="#1d5d8f" stroke-width="3"/></g>' +
+          '<g class="bp-bag-c"><rect x="0" y="105" width="36" height="28" rx="6" fill="#7a5c3e"/><rect x="11" y="99" width="14" height="8" rx="3" fill="none" stroke="#7a5c3e" stroke-width="3"/></g>' +
+          /* the tagged bag - yours */
+          '<g class="bp-bag-a">' +
+            '<rect x="0" y="101" width="46" height="33" rx="7" fill="' + DEEP + '" stroke="' + SKY + '" stroke-width="1.5"/>' +
+            '<rect x="15" y="94" width="16" height="9" rx="3.5" fill="none" stroke="' + DEEP + '" stroke-width="3.5"/>' +
+            '<circle class="bp-glow" cx="38" cy="108" r="5.5" fill="' + YELLOW + '"/>' +
+            '<circle class="bp-ring1" cx="38" cy="108" fill="none" stroke="' + YELLOW + '" stroke-width="1.6"/>' +
+            '<circle class="bp-ring2" cx="38" cy="108" fill="none" stroke="' + YELLOW + '" stroke-width="1.4"/>' +
+            '<circle class="bp-ring3" cx="38" cy="108" fill="none" stroke="' + YELLOW + '" stroke-width="1.2"/>' +
+          '</g>' +
+        '</g>' +
+        /* floor line */
+        '<line x1="10" y1="156" x2="390" y2="156" stroke="#16466b" stroke-width="1.5" opacity=".6"/>' +
+      '</svg>';
+    var scene = wrap.firstChild;
+
+    var oldSvg = hero.querySelector('svg');
+    if (oldSvg) hero.replaceChild(scene, oldSvg);
+    else hero.insertBefore(scene, hero.firstChild);
+  }
+
+  /* ---- UI: hero card + panel (design unchanged from build 20) ---- */
   var ui = {};
 
   function mount() {
+    beautifyBelt();
     if (document.getElementById('bp-radar-card')) return;
     buildCard();
-
     var overlay = el('div', [
       'position:fixed', 'inset:0', 'z-index:100000', 'display:none',
       'background:' + NAVY, 'color:#fff', 'font-family:Outfit,system-ui,sans-serif',
@@ -290,8 +348,6 @@
     buildPanel(overlay);
   }
 
-  // The Belt Radar hero card. Lives INSIDE #tab-home, directly under the
-  // belt hero - big, labelled, and it cannot cover the tab bar or Settings.
   function buildCard() {
     var card = el('div', [
       'background:var(--glass, rgba(255,255,255,.07))',
@@ -303,7 +359,7 @@
     ].join(';'));
     card.id = 'bp-radar-card';
     card.setAttribute('role', 'button');
-    card.setAttribute('aria-label', 'Belt Radar - pings as your bag gets closer');
+    card.setAttribute('aria-label', T('radar_aria', 'Belt Radar - pings as your bag gets closer'));
 
     var icon = el('div', 'width:52px;height:52px;background:rgba(0,153,230,.15);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0');
     icon.innerHTML =
@@ -317,12 +373,12 @@
 
     var body = el('div', 'flex:1;min-width:0');
     var titleRow = el('div', 'display:flex;align-items:center;justify-content:space-between;gap:8px');
-    titleRow.appendChild(el('div', 'font-weight:700;font-size:16px;color:#fff', 'Belt Radar'));
+    titleRow.appendChild(el('div', 'font-weight:700;font-size:16px;color:#fff', T('radar_title', 'Belt Radar')));
     ui.cardStatus = el('div', 'font-size:12px;font-weight:600;color:rgba(255,255,255,.55);white-space:nowrap', '');
     titleRow.appendChild(ui.cardStatus);
     body.appendChild(titleRow);
     body.appendChild(el('div', 'font-size:13px;color:rgba(255,255,255,.55);margin:2px 0 10px;line-height:1.4',
-      'Pings as your bag gets closer.'));
+      T('radar_sub', 'Pings as your bag gets closer.')));
     var track = el('div', 'height:8px;border-radius:5px;background:rgba(255,255,255,.10);overflow:hidden');
     ui.cardFill = el('div', 'height:100%;width:0%;border-radius:5px;background:linear-gradient(90deg,' + SKY + ',' + YELLOW + ');transition:width .4s');
     track.appendChild(ui.cardFill);
@@ -332,18 +388,17 @@
     var chev = el('div', 'flex-shrink:0;color:rgba(255,255,255,.45)');
     chev.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     card.appendChild(chev);
-
     card.onclick = openPanel;
 
     var home = document.getElementById('tab-home');
     if (home) {
+      var claimHero = document.getElementById('bp-claim-hero');
       var hero = home.querySelector('.belt-hero');
-      if (hero && hero.nextSibling) home.insertBefore(card, hero.nextSibling);
+      if (claimHero && claimHero.nextSibling) home.insertBefore(card, claimHero.nextSibling);
+      else if (hero && hero.nextSibling) home.insertBefore(card, hero.nextSibling);
       else if (hero) home.appendChild(card);
       else home.insertBefore(card, home.firstChild);
     } else {
-      // Fallback (page without #tab-home): fixed bar ABOVE the tab bar,
-      // full width - never on top of the Settings button.
       card.style.position = 'fixed';
       card.style.left = '16px';
       card.style.right = '16px';
@@ -357,14 +412,18 @@
   function updateCard() {
     if (!ui.cardStatus) return;
     if (!state.activated) {
-      ui.cardStatus.textContent = 'Tap to set up';
+      ui.cardStatus.textContent = T('radar_setup', 'Tap to set up');
       ui.cardStatus.style.color = 'rgba(255,255,255,.55)';
     } else if (!state.monitoring) {
-      ui.cardStatus.textContent = 'Ready';
+      ui.cardStatus.textContent = T('radar_ready', 'Ready');
       ui.cardStatus.style.color = GREEN;
     } else {
-      var labels = { immediate: 'Here now - grab it!', near: 'Close', far: 'Approaching' };
-      ui.cardStatus.textContent = labels[state.lastProximity] || 'Watching...';
+      var labels = {
+        immediate: T('radar_here_grab', 'Here now - grab it!'),
+        near: T('radar_close', 'Close'),
+        far: T('radar_approaching', 'Approaching')
+      };
+      ui.cardStatus.textContent = labels[state.lastProximity] || T('radar_watching', 'Watching...');
       ui.cardStatus.style.color = (state.lastProximity === 'immediate' || state.lastProximity === 'near') ? YELLOW : SKY;
     }
   }
@@ -372,52 +431,51 @@
   function buildPanel(o) {
     o.innerHTML = '';
     var close = el('button', 'position:absolute;top:16px;right:16px;background:none;border:none;color:#9fc7e6;font-size:26px', '\u00d7');
+    close.setAttribute('aria-label', T('radar_close', 'Close'));
     close.onclick = function () { o.style.display = 'none'; };
     o.appendChild(close);
 
-    o.appendChild(el('div', 'font:800 26px Outfit,system-ui;margin:8px 0 2px', 'Belt Radar'));
-    o.appendChild(el('div', 'color:#9fc7e6;margin-bottom:18px', 'Get pinged the moment your bag reaches the belt.'));
+    o.appendChild(el('div', 'font:800 26px Outfit,system-ui;margin:8px 0 2px', T('radar_title', 'Belt Radar')));
+    o.appendChild(el('div', 'color:#9fc7e6;margin-bottom:18px', T('radar_panel_sub', 'Get pinged the moment your bag reaches the belt.')));
 
-    // activation
     if (!state.activated) {
       var box = el('div', 'background:rgba(255,255,255,.06);border-radius:14px;padding:16px;margin-bottom:16px');
-      box.appendChild(el('div', 'font-weight:700;margin-bottom:8px', 'Activate your device'));
+      box.appendChild(el('div', 'font-weight:700;margin-bottom:8px', T('radar_activate_title', 'Activate your device')));
       var inp = el('input', 'width:100%;box-sizing:border-box;padding:12px;border-radius:10px;border:1px solid #16466b;background:#0a2f4d;color:#fff;font-size:16px');
-      inp.placeholder = 'Serial number from your BagPing tag';
+      inp.placeholder = T('radar_serial_ph', 'Serial number from your BagPing tag');
       box.appendChild(inp);
-      var btn = primaryBtn('Activate', function () { activate(inp.value); });
+      var btn = primaryBtn(T('radar_activate_btn', 'Activate'), function () { activate(inp.value); });
       btn.style.marginTop = '10px';
       box.appendChild(btn);
       o.appendChild(box);
     } else {
-      o.appendChild(el('div', 'color:' + GREEN + ';font-weight:700;margin-bottom:12px', '\u2713 Activated' + (state.serial ? ' - ' + state.serial : '')));
+      o.appendChild(el('div', 'color:' + GREEN + ';font-weight:700;margin-bottom:12px',
+        '\u2713 ' + T('radar_activated', 'Activated') + (state.serial ? ' - ' + state.serial : '')));
     }
 
-    // bag photo
     var pbox = el('div', 'background:rgba(255,255,255,.06);border-radius:14px;padding:16px;margin-bottom:16px');
-    pbox.appendChild(el('div', 'font-weight:700;margin-bottom:8px', 'Your bag photo'));
-    pbox.appendChild(el('div', 'color:#9fc7e6;font-size:13px;margin-bottom:10px', 'Shown in the ping so you know it is yours. Stays on your phone.'));
+    pbox.appendChild(el('div', 'font-weight:700;margin-bottom:8px', T('radar_photo_title', 'Your bag photo')));
+    pbox.appendChild(el('div', 'color:#9fc7e6;font-size:13px;margin-bottom:10px',
+      T('radar_photo_sub', 'Shown in the ping so you know it is yours. Stays on your phone.')));
     if (state.photo) {
       var img = el('img', 'width:120px;height:120px;object-fit:cover;border-radius:12px;display:block;margin-bottom:10px');
       img.src = state.photo; pbox.appendChild(img);
     }
-    pbox.appendChild(secondaryBtn(state.photo ? 'Retake photo' : 'Add bag photo', capturePhoto));
+    pbox.appendChild(secondaryBtn(state.photo ? T('radar_photo_retake', 'Retake photo') : T('radar_photo_add', 'Add bag photo'), capturePhoto));
     o.appendChild(pbox);
 
-    // meter
     var mbox = el('div', 'background:rgba(255,255,255,.06);border-radius:14px;padding:16px;margin-bottom:16px');
-    mbox.appendChild(el('div', 'font-weight:700;margin-bottom:12px', 'Proximity'));
+    mbox.appendChild(el('div', 'font-weight:700;margin-bottom:12px', T('radar_proximity', 'Proximity')));
     var track = el('div', 'height:14px;border-radius:8px;background:#0a2f4d;overflow:hidden');
     ui.fill = el('div', 'height:100%;width:0%;border-radius:8px;background:linear-gradient(90deg,' + SKY + ',' + YELLOW + ');transition:width .4s');
     track.appendChild(ui.fill); mbox.appendChild(track);
-    ui.meterLabel = el('div', 'margin-top:10px;color:#9fc7e6;font-weight:600', 'Not tracking');
+    ui.meterLabel = el('div', 'margin-top:10px;color:#9fc7e6;font-weight:600', T('radar_not_tracking', 'Not tracking'));
     mbox.appendChild(ui.meterLabel);
     o.appendChild(mbox);
 
-    // controls
-    if (!state.monitoring) o.appendChild(primaryBtn('Start Belt Radar', startBelt));
-    else o.appendChild(secondaryBtn('Stop Belt Radar', stopBelt));
-    var demo = secondaryBtn('Run Demo (no tag needed)', runDemo);
+    if (!state.monitoring) o.appendChild(primaryBtn(T('radar_start', 'Start Belt Radar'), startBelt));
+    else o.appendChild(secondaryBtn(T('radar_stop', 'Stop Belt Radar'), stopBelt));
+    var demo = secondaryBtn(T('radar_demo', 'Run Demo (no tag needed)'), runDemo);
     demo.style.marginTop = '10px'; o.appendChild(demo);
 
     ui.status = el('div', 'margin-top:16px;color:#9fc7e6;font-size:13px;min-height:18px', '');
@@ -436,7 +494,12 @@
 
   function setMeter(p) {
     var pct = { immediate: 100, near: 66, far: 33, unknown: 0 }[p] || 0;
-    var label = { immediate: 'Here now - grab it!', near: 'Close', far: 'Approaching', unknown: 'Not tracking' }[p] || 'Not tracking';
+    var label = {
+      immediate: T('radar_here_grab', 'Here now - grab it!'),
+      near: T('radar_close', 'Close'),
+      far: T('radar_approaching', 'Approaching'),
+      unknown: T('radar_not_tracking', 'Not tracking')
+    }[p] || T('radar_not_tracking', 'Not tracking');
     if (ui.fill) ui.fill.style.width = pct + '%';
     if (ui.meterLabel) ui.meterLabel.textContent = label;
     if (ui.cardFill) ui.cardFill.style.width = pct + '%';
@@ -455,17 +518,14 @@
     setTimeout(function () { b.style.transition = 'opacity .4s'; b.style.opacity = '0'; setTimeout(function () { b.remove(); }, 400); }, 2600);
   }
 
-  // ---- boot -----------------------------------------------------------------
-  function boot() {
-    load().then(function () { mount(); });
-  }
+  /* ---- boot ---- */
+  function boot() { load().then(function () { mount(); }); }
   if (window.cordova) document.addEventListener('deviceready', boot, false);
   else if (document.readyState === 'complete' || document.readyState === 'interactive') boot();
   else document.addEventListener('DOMContentLoaded', boot, false);
 
-  // expose for debugging / integration
   window.BagPingNative = {
     activate: activate, startBelt: startBelt, stopBelt: stopBelt,
-    capturePhoto: capturePhoto, runDemo: runDemo, state: state
+    capturePhoto: capturePhoto, runDemo: runDemo, runDemoBelt: runDemo, state: state
   };
 })();
