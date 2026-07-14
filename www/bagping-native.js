@@ -6,8 +6,12 @@
  * - Rich local notification carrying the user's on-device bag photo
  * - Demo/Review mode so Apple can test without hardware
  *
- * Self-contained: mounts its own "Belt Radar" UI, does not modify Karam's app logic.
- * Karam can restyle/reposition freely; brand tokens used throughout.
+ * v2 UI: the Belt Radar is now a labelled HERO CARD mounted into #tab-home
+ * (right under the belt hero), not a floating pill. The old fixed FAB at
+ * right:16px/bottom:16px, z-index 99999 sat directly on top of the Settings
+ * tab button (tab bar z-index is 100) - that was the "radar covers settings"
+ * bug. The card also only shows when the Home tab is visible, so it no
+ * longer floats over the login screen.
  */
 (function () {
   'use strict';
@@ -220,7 +224,7 @@
       } catch (e) {}
     }
     stopFeedback();
-    state.monitoring = false; setMeter('unknown'); render();
+    state.monitoring = false; state.lastProximity = 'unknown'; setMeter('unknown'); render();
   }
   function makeDelegate(lm) {
     var d = new lm.Delegate();
@@ -268,25 +272,16 @@
     }, 1100);
   }
 
-  // ---- UI (self-mounted Belt Radar) ----------------------------------------
+  // ---- UI: hero card on Home + full panel -----------------------------------
   var ui = {};
-  function mount() {
-    if (document.getElementById('bp-radar-fab')) return;
 
-    var fab = el('button', [
-      'position:fixed', 'right:16px', 'bottom:16px', 'z-index:99999',
-      'background:linear-gradient(135deg,' + SKY + ',' + DEEP + ')', 'color:#fff',
-      'border:none', 'border-radius:28px', 'padding:14px 18px', 'font:600 15px system-ui',
-      'box-shadow:0 6px 20px rgba(0,0,0,.3)', 'display:flex', 'align-items:center', 'gap:8px'
-    ].join(';'));
-    fab.id = 'bp-radar-fab';
-    fab.innerHTML = '<span style="width:10px;height:10px;border-radius:50%;background:' + YELLOW + ';display:inline-block"></span> Belt Radar';
-    fab.onclick = openPanel;
-    document.body.appendChild(fab);
+  function mount() {
+    if (document.getElementById('bp-radar-card')) return;
+    buildCard();
 
     var overlay = el('div', [
       'position:fixed', 'inset:0', 'z-index:100000', 'display:none',
-      'background:' + NAVY, 'color:#fff', 'font-family:system-ui',
+      'background:' + NAVY, 'color:#fff', 'font-family:Outfit,system-ui,sans-serif',
       'padding:24px', 'overflow:auto'
     ].join(';'));
     overlay.id = 'bp-radar-panel';
@@ -294,13 +289,93 @@
     ui.overlay = overlay;
     buildPanel(overlay);
   }
+
+  // The Belt Radar hero card. Lives INSIDE #tab-home, directly under the
+  // belt hero - big, labelled, and it cannot cover the tab bar or Settings.
+  function buildCard() {
+    var card = el('div', [
+      'background:var(--glass, rgba(255,255,255,.07))',
+      'border:1px solid var(--glass-border, rgba(255,255,255,.13))',
+      'border-radius:20px', 'padding:16px 18px',
+      'display:flex', 'align-items:center', 'gap:14px',
+      'cursor:pointer', 'flex-shrink:0',
+      'font-family:Outfit,system-ui,sans-serif'
+    ].join(';'));
+    card.id = 'bp-radar-card';
+    card.setAttribute('role', 'button');
+    card.setAttribute('aria-label', 'Belt Radar - pings as your bag gets closer');
+
+    var icon = el('div', 'width:52px;height:52px;background:rgba(0,153,230,.15);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0');
+    icon.innerHTML =
+      '<svg width="30" height="30" viewBox="0 0 24 24" fill="none">' +
+        '<circle cx="12" cy="14" r="2.4" fill="' + YELLOW + '"/>' +
+        '<path d="M12 7.5a6.5 6.5 0 0 1 6.5 6.5" stroke="' + SKY + '" stroke-width="1.8" stroke-linecap="round"/>' +
+        '<path d="M12 3.5A10.5 10.5 0 0 1 22.5 14" stroke="' + SKY + '" stroke-width="1.8" stroke-linecap="round" opacity=".55"/>' +
+        '<path d="M12 7.5A6.5 6.5 0 0 0 5.5 14" stroke="' + SKY + '" stroke-width="1.8" stroke-linecap="round" opacity=".35"/>' +
+      '</svg>';
+    card.appendChild(icon);
+
+    var body = el('div', 'flex:1;min-width:0');
+    var titleRow = el('div', 'display:flex;align-items:center;justify-content:space-between;gap:8px');
+    titleRow.appendChild(el('div', 'font-weight:700;font-size:16px;color:#fff', 'Belt Radar'));
+    ui.cardStatus = el('div', 'font-size:12px;font-weight:600;color:rgba(255,255,255,.55);white-space:nowrap', '');
+    titleRow.appendChild(ui.cardStatus);
+    body.appendChild(titleRow);
+    body.appendChild(el('div', 'font-size:13px;color:rgba(255,255,255,.55);margin:2px 0 10px;line-height:1.4',
+      'Pings as your bag gets closer.'));
+    var track = el('div', 'height:8px;border-radius:5px;background:rgba(255,255,255,.10);overflow:hidden');
+    ui.cardFill = el('div', 'height:100%;width:0%;border-radius:5px;background:linear-gradient(90deg,' + SKY + ',' + YELLOW + ');transition:width .4s');
+    track.appendChild(ui.cardFill);
+    body.appendChild(track);
+    card.appendChild(body);
+
+    var chev = el('div', 'flex-shrink:0;color:rgba(255,255,255,.45)');
+    chev.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    card.appendChild(chev);
+
+    card.onclick = openPanel;
+
+    var home = document.getElementById('tab-home');
+    if (home) {
+      var hero = home.querySelector('.belt-hero');
+      if (hero && hero.nextSibling) home.insertBefore(card, hero.nextSibling);
+      else if (hero) home.appendChild(card);
+      else home.insertBefore(card, home.firstChild);
+    } else {
+      // Fallback (page without #tab-home): fixed bar ABOVE the tab bar,
+      // full width - never on top of the Settings button.
+      card.style.position = 'fixed';
+      card.style.left = '16px';
+      card.style.right = '16px';
+      card.style.bottom = 'calc(72px + env(safe-area-inset-bottom, 0px) + 12px)';
+      card.style.zIndex = '99999';
+      document.body.appendChild(card);
+    }
+    updateCard();
+  }
+
+  function updateCard() {
+    if (!ui.cardStatus) return;
+    if (!state.activated) {
+      ui.cardStatus.textContent = 'Tap to set up';
+      ui.cardStatus.style.color = 'rgba(255,255,255,.55)';
+    } else if (!state.monitoring) {
+      ui.cardStatus.textContent = 'Ready';
+      ui.cardStatus.style.color = GREEN;
+    } else {
+      var labels = { immediate: 'Here now - grab it!', near: 'Close', far: 'Approaching' };
+      ui.cardStatus.textContent = labels[state.lastProximity] || 'Watching...';
+      ui.cardStatus.style.color = (state.lastProximity === 'immediate' || state.lastProximity === 'near') ? YELLOW : SKY;
+    }
+  }
+
   function buildPanel(o) {
     o.innerHTML = '';
     var close = el('button', 'position:absolute;top:16px;right:16px;background:none;border:none;color:#9fc7e6;font-size:26px', '\u00d7');
     close.onclick = function () { o.style.display = 'none'; };
     o.appendChild(close);
 
-    o.appendChild(el('div', 'font:800 26px system-ui;margin:8px 0 2px', 'Belt Radar'));
+    o.appendChild(el('div', 'font:800 26px Outfit,system-ui;margin:8px 0 2px', 'Belt Radar'));
     o.appendChild(el('div', 'color:#9fc7e6;margin-bottom:18px', 'Get pinged the moment your bag reaches the belt.'));
 
     // activation
@@ -349,31 +424,32 @@
     o.appendChild(ui.status);
   }
   function primaryBtn(label, fn) {
-    var b = el('button', 'width:100%;padding:14px;border:none;border-radius:12px;color:#fff;font:700 16px system-ui;background:linear-gradient(135deg,' + SKY + ',' + DEEP + ')', label);
+    var b = el('button', 'width:100%;padding:14px;border:none;border-radius:12px;color:#fff;font:700 16px Outfit,system-ui;background:linear-gradient(135deg,' + SKY + ',' + DEEP + ')', label);
     b.onclick = fn; return b;
   }
   function secondaryBtn(label, fn) {
-    var b = el('button', 'width:100%;padding:13px;border:1px solid #16466b;border-radius:12px;color:#dff0ff;font:600 15px system-ui;background:transparent', label);
+    var b = el('button', 'width:100%;padding:13px;border:1px solid #16466b;border-radius:12px;color:#dff0ff;font:600 15px Outfit,system-ui;background:transparent', label);
     b.onclick = fn; return b;
   }
   function openPanel() { render(); ui.overlay.style.display = 'block'; }
-  function render() { if (ui.overlay) buildPanel(ui.overlay); }
+  function render() { if (ui.overlay) buildPanel(ui.overlay); updateCard(); }
 
   function setMeter(p) {
-    if (!ui.fill) return;
     var pct = { immediate: 100, near: 66, far: 33, unknown: 0 }[p] || 0;
     var label = { immediate: 'Here now - grab it!', near: 'Close', far: 'Approaching', unknown: 'Not tracking' }[p] || 'Not tracking';
-    ui.fill.style.width = pct + '%';
+    if (ui.fill) ui.fill.style.width = pct + '%';
     if (ui.meterLabel) ui.meterLabel.textContent = label;
+    if (ui.cardFill) ui.cardFill.style.width = pct + '%';
+    updateCard();
   }
   function setStatus(t) { if (ui.status) ui.status.textContent = t; }
 
   function toast(t) { banner(t); }
   function banner(t) {
     var b = el('div', [
-      'position:fixed', 'left:50%', 'bottom:84px', 'transform:translateX(-50%)', 'z-index:100001',
+      'position:fixed', 'left:50%', 'bottom:calc(84px + env(safe-area-inset-bottom, 0px))', 'transform:translateX(-50%)', 'z-index:100001',
       'background:' + DEEP, 'color:#fff', 'padding:12px 18px', 'border-radius:12px',
-      'font:600 14px system-ui', 'box-shadow:0 6px 20px rgba(0,0,0,.35)', 'max-width:88%', 'text-align:center'
+      'font:600 14px Outfit,system-ui', 'box-shadow:0 6px 20px rgba(0,0,0,.35)', 'max-width:88%', 'text-align:center'
     ].join(';'), t);
     document.body.appendChild(b);
     setTimeout(function () { b.style.transition = 'opacity .4s'; b.style.opacity = '0'; setTimeout(function () { b.remove(); }, 400); }, 2600);

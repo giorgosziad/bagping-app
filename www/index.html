@@ -762,6 +762,7 @@ function openChat(agent){
   const iconBox = document.getElementById('chat-agent-icon');
   iconBox.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#0099E6" stroke-width="2"/><circle cx="12" cy="10" r="3" fill="#0099E6"/><path d="M5 20c1.5-3 4-4 7-4s5.5 1 7 4" stroke="#0099E6" stroke-width="2" stroke-linecap="round"/></svg>';
   overlay.classList.add('open');
+  setVoiceUI();
   renderChat();
   setTimeout(()=>document.getElementById('chat-input').focus(), 100);
 }
