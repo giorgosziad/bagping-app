@@ -816,7 +816,8 @@ var TTS_LANG = {en:'en-US',es:'es-ES',fr:'fr-FR',de:'de-DE',it:'it-IT',pt:'pt-PT
 function voiceLang(){ return TTS_LANG[state.lang] || 'en-US'; }
 function capPlugin(n){ return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins[n]) || null; }
 async function speakReply(text){
-  if (!state.voiceOn || !text) return;`r`n  if (window.BPVoice) { try { await BPVoice.speak(text, state.lang); return; } catch(e){} }
+  if (!state.voiceOn || !text) return;
+  if (window.BPVoice) { try { await BPVoice.speak(text, state.lang); return; } catch(e){} }
   try {
     var TTS = capPlugin('TextToSpeech');
     if (TTS) { try { await TTS.stop(); } catch(e){} await TTS.speak({ text: text, lang: voiceLang(), rate: 1.0, pitch: 1.0, volume: 1.0 }); return; }
