@@ -81,6 +81,10 @@ workflows:
           /usr/libexec/PlistBuddy -c "Add :NSMicrophoneUsageDescription string 'BagPing uses the microphone so you can talk to your AI Travel Crew.'" "$PLIST" 2>/dev/null || true
           /usr/libexec/PlistBuddy -c "Add :NSSpeechRecognitionUsageDescription string 'BagPing uses speech recognition to turn what you say into messages for the crew.'" "$PLIST" 2>/dev/null || true
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" "$PLIST" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string $BUILD_NUMBER" "$PLIST" 2>/dev/null || true
+          # Export compliance: BagPing uses only standard HTTPS/TLS, which is exempt.
+          # Without this key, App Store Connect blocks EVERY build at "missing export
+          # compliance" and a human has to tick a box by hand each time. Declare it once.
+          /usr/libexec/PlistBuddy -c "Set :ITSAppUsesNonExemptEncryption false" "$PLIST" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" "$PLIST" 2>/dev/null || true
           echo "CFBundleVersion -> $(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$PLIST")"
           echo "Photo string -> $(/usr/libexec/PlistBuddy -c 'Print :NSPhotoLibraryUsageDescription' "$PLIST")"
       - name: Pin signing into project (SPM fix)
