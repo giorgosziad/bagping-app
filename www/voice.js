@@ -5,8 +5,9 @@
    - Queries getSupportedVoices() once, scores every voice,
      and picks the best one per language (premium > enhanced >
      neural/network > plain > compact; novelty voices excluded).
-   - Tuned delivery: rate 0.93, pitch 0.97 — calm companion,
-     not a train announcement.
+   - Tuned delivery: base rate 0.95 (English 1.0 — 0.93 sounded
+     stretched on-device, Build 21 fix 1), pitch 0.97 — calm
+     companion, not a train announcement.
    - Caches the pick per language in memory + localStorage,
      invalidated automatically if the installed voices change.
    - Falls back gracefully at every layer. Never crashes,
@@ -26,8 +27,11 @@
 (function () {
   'use strict';
 
-  var RATE   = 0.93;   // unhurried — someone helping, not announcing
+  var RATE   = 0.95;   // unhurried — someone helping, not announcing (was 0.93: stretched)
   var PITCH  = 0.97;   // a touch warmer than default
+  /* Per-language rate overrides. English voices sounded stretched at the
+     global rate on device (Build 21 fix 1); natural pace for en. */
+  var RATE_LANG = { en: 1.0 };
   var LS_KEY = 'bp_voice_v1';
 
   /* Preferred full BCP-47 tag per base language.
@@ -283,7 +287,7 @@
       var params = {
         text: text,
         lang: (pick && pick.tag) || REGION[base] || lang || 'en-US',
-        rate:  (opts.rate  != null) ? opts.rate  : RATE,
+        rate:  (opts.rate  != null) ? opts.rate  : (RATE_LANG[base] || RATE),
         pitch: (opts.pitch != null) ? opts.pitch : PITCH,
         volume: 1.0,
         category: 'playback'   // iOS: audible even with the ring switch muted
@@ -298,7 +302,7 @@
       if (msg.indexOf('interrupt') !== -1 || msg.indexOf('cancel') !== -1) return false;
       /* Last resort: plain speak. Never silent, never a crash. */
       try {
-        return p.speak({ text: text, lang: REGION[base] || 'en-US', rate: RATE, pitch: 1.0 })
+        return p.speak({ text: text, lang: REGION[base] || 'en-US', rate: (RATE_LANG[base] || RATE), pitch: 1.0 })
                 .then(function () { return true; })
                 .catch(function () { return false; });
       } catch (_) { return Promise.resolve(false); }

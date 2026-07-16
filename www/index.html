@@ -293,17 +293,17 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 
   <div id="tab-crew" class="tab-content">
     <div class="crew-header">
-      <h2 data-i18n="crew_title">AI Travel Crew</h2>
+      <h2 data-i18n="crew_title">AI Crew</h2>
       <p data-i18n="crew_subtitle">Your team on the ground. Ask anything.</p>
     </div>
     <div class="crew-grid">
-      <div class="crew-card wide" data-agent="bag">
+      <div class="crew-card wide" data-agent="claim">
         <div class="crew-card-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="7" width="16" height="13" rx="2" stroke="#0099E6" stroke-width="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" stroke="#0099E6" stroke-width="2"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#0099E6" stroke-width="2"/><path d="M14 2v6h6M9 13h6M9 17h4" stroke="#0099E6" stroke-width="2"/></svg>
         </div>
         <div class="crew-card-body">
-          <div class="crew-card-name" data-i18n="crew_bag">Bag Tracker</div>
-          <div class="crew-card-desc" data-i18n="crew_bag_desc">Real-time bag status and alerts</div>
+          <div class="crew-card-name" data-i18n="crew_claim">Claim Helper</div>
+          <div class="crew-card-desc" data-i18n="crew_claim_desc">Draft your claim now</div>
         </div>
       </div>
       <div class="crew-card" data-agent="flight">
@@ -324,13 +324,13 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
           <div class="crew-card-desc" data-i18n="crew_companion_desc">Maps, food, transport</div>
         </div>
       </div>
-      <div class="crew-card" data-agent="claim">
+      <div class="crew-card" data-agent="bag">
         <div class="crew-card-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#0099E6" stroke-width="2"/><path d="M14 2v6h6M9 13h6M9 17h4" stroke="#0099E6" stroke-width="2"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="7" width="16" height="13" rx="2" stroke="#0099E6" stroke-width="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" stroke="#0099E6" stroke-width="2"/></svg>
         </div>
         <div class="crew-card-body">
-          <div class="crew-card-name" data-i18n="crew_claim">Claim Helper</div>
-          <div class="crew-card-desc" data-i18n="crew_claim_desc">Draft your claim now</div>
+          <div class="crew-card-name" data-i18n="crew_bag">Bag Tracker</div>
+          <div class="crew-card-desc" data-i18n="crew_bag_desc">Real-time bag status and alerts</div>
         </div>
       </div>
       <div class="crew-card" data-agent="insurance">
@@ -397,7 +397,7 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
       <div class="tab-btn-icon">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle class="tab-icon-stroke" cx="9" cy="8" r="3.5" stroke-width="2"/><circle class="tab-icon-stroke" cx="17" cy="10" r="2.5" stroke-width="2"/><path class="tab-icon-stroke" d="M3 19c0-3 3-5 6-5s6 2 6 5M14 19c0-2 2-3.5 4-3.5s3 1 4 2" stroke-width="2" stroke-linecap="round"/></svg>
       </div>
-      <div class="tab-btn-label" data-i18n="nav_crew">Crew</div>
+      <div class="tab-btn-label" data-i18n="nav_crew">AI Crew</div>
     </button>
     <button class="tab-btn" data-tab="settings">
       <div class="tab-btn-icon">
@@ -416,7 +416,7 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
         <div class="chat-agent-icon" id="chat-agent-icon"></div>
         <div>
           <div class="chat-agent-name" id="chat-agent-name">Bag Tracker</div>
-          <div class="chat-agent-sub" id="chat-agent-sub">BagPing crew</div>
+          <div class="chat-agent-sub" id="chat-agent-sub">BagPing AI Crew</div>
         </div>
       </div>
       <button class="chat-voice-toggle" id="chat-voice-toggle" aria-label="Voice on/off">
@@ -509,6 +509,7 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 <script src="i18n.js"></script>
 <script src="i18n-claim.js"></script>
 <script src="i18n-radar.js"></script>
+<script src="i18n-build21.js"></script>
 <script>
 const LANG_NAMES = {en:'English',es:'Español',fr:'Français',de:'Deutsch',it:'Italiano',pt:'Português',ar:'العربية',zh:'中文',ja:'日本語',ko:'한국어',ru:'Русский',nl:'Nederlands',pl:'Polski',tr:'Türkçe',sv:'Svenska',da:'Dansk',fi:'Suomi',el:'Ελληνικά',he:'עברית'};
 const RTL_LANGS = ['ar','he'];
@@ -1019,6 +1020,11 @@ function openLangPicker(){
       persist();
       applyI18n();
       renderBags();
+      /* Build 21 fix 1+4: re-pick the voice for the new language, and tell
+         late-loaded modules (Belt Radar in bagping-native.js) to re-render
+         any imperatively-set strings. */
+      if (window.BPVoice) BPVoice.warmUp(state.lang);
+      try { document.dispatchEvent(new CustomEvent('bp:langchange', { detail: { lang: state.lang } })); } catch(e){}
       closeLangPicker();
     });
   });
@@ -1121,6 +1127,9 @@ function boot(){
   loadState();
   applyI18n();
   bind();
+  /* Build 21 fix 1: warm the voice pick at init so the first utterance
+     is never cold/default. */
+  if (window.BPVoice) BPVoice.warmUp(state.lang);
   if (state.authed){
     showScreen('screen-main');
     renderBags();
@@ -1134,6 +1143,13 @@ function boot(){
 
 if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
 else boot();
+
+/* Build 21 fix 4: the Belt Radar card is injected by bagping-native.js, which
+   loads AFTER boot() has already run applyI18n(). Re-apply once everything has
+   loaded so late-injected [data-i18n] nodes get translated, and expose the
+   applier so native modules can call it after any dynamic re-render. */
+window.BP_APPLY_I18N = applyI18n;
+window.addEventListener('load', function(){ applyI18n(); });
 
 /* JOB 3: token bridge for the claim flow (claim-flow.js).
    The real JWT lives on state.token, minted by ensureBackendToken(). */
