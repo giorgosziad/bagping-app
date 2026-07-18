@@ -27,12 +27,12 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 .screen.active{display:flex}
 #screen-auth{justify-content:center;align-items:center;padding:32px 24px;padding-top:calc(32px + var(--safe-top));padding-bottom:calc(32px + var(--safe-bottom))}
 .auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:36px}
-.auth-logo-icon{width:52px;height:52px;background:var(--sky);border-radius:14px;display:flex;align-items:center;justify-content:center}
+.auth-logo-icon{width:52px;height:52px;background:linear-gradient(160deg,var(--sky),var(--deep));border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,153,230,.35)}
 .auth-logo-text{font-family:'DM Serif Display',serif;font-size:28px}
 .auth-logo-text span{color:var(--yellow)}
 .auth-lang-btn{display:inline-flex;align-items:center;gap:7px;margin:-16px 0 26px;padding:8px 15px;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);border-radius:999px;color:#fff;font-size:14px;cursor:pointer;transition:background .15s}
 .auth-lang-btn:active{background:rgba(255,255,255,.16)}
-.auth-card{width:100%;max-width:400px;background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:32px 28px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.auth-card{width:100%;max-width:400px;background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.045));border:1px solid var(--glass-border);border-radius:var(--radius);padding:32px 28px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 14px 40px rgba(0,0,0,.25)}
 .auth-card h2{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:6px}
 .auth-card p{color:var(--muted);font-size:14px;margin-bottom:28px}
 .form-group{margin-bottom:18px}
@@ -40,7 +40,7 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 .form-group input{width:100%;padding:14px 16px;background:rgba(255,255,255,.06);border:1px solid var(--glass-border);border-radius:var(--radius-sm);color:var(--white);font-family:'Outfit',sans-serif;font-size:16px;outline:none;transition:border-color .2s;-webkit-appearance:none}
 .form-group input:focus{border-color:var(--sky)}
 .form-group input::placeholder{color:rgba(255,255,255,.3)}
-.btn-primary{width:100%;padding:15px;background:var(--yellow);color:var(--ink);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s;letter-spacing:.01em}
+.btn-primary{width:100%;padding:15px;background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0) 55%),var(--yellow);color:var(--ink);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s;letter-spacing:.01em;box-shadow:0 6px 18px rgba(255,214,0,.22)}
 .btn-primary:active{opacity:.82}
 .btn-ghost{background:none;border:none;color:var(--muted);font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer;padding:10px;margin-top:8px;width:100%;text-align:center;transition:color .2s}
 .btn-ghost:hover,.btn-ghost:active{color:var(--white)}
@@ -49,7 +49,7 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 #screen-main{padding-bottom:calc(var(--tab-h) + var(--safe-bottom))}
 .header{display:flex;align-items:center;justify-content:space-between;padding:calc(52px + var(--safe-top)) 20px 16px;flex-shrink:0}
 .header-logo{display:flex;align-items:center;gap:8px}
-.header-logo-icon{width:36px;height:36px;background:var(--sky);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.header-logo-icon{width:36px;height:36px;background:linear-gradient(160deg,var(--sky),var(--deep));border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,153,230,.3)}
 .header-logo-text{font-family:'DM Serif Display',serif;font-size:20px}
 .header-logo-text span{color:var(--yellow)}
 .header-btn{width:38px;height:38px;background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;flex-shrink:0}
@@ -57,13 +57,14 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 .tab-content{display:none;flex-direction:column;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .tab-content.active{display:flex}
 #tab-home{padding:0 20px 24px;gap:20px}
-.belt-hero{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:24px 20px 20px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);overflow:hidden;position:relative;flex-shrink:0}
+.belt-hero{background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.045));border:1px solid var(--glass-border);border-radius:var(--radius);padding:24px 20px 20px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);overflow:hidden;position:relative;flex-shrink:0;box-shadow:0 14px 40px rgba(0,0,0,.25)}
+.belt-hero::before{content:'';position:absolute;top:-45%;left:-15%;width:75%;height:130%;background:radial-gradient(ellipse at center,rgba(0,153,230,.14),transparent 70%);pointer-events:none;z-index:0}
 .belt-svg-wrap{width:100%;height:88px}
 @keyframes beltMove{from{stroke-dashoffset:0}to{stroke-dashoffset:-64}}
 .belt-anim{animation:beltMove 1.4s linear infinite}
 @keyframes bagFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 .bag-float{animation:bagFloat 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center bottom}
-@keyframes pingPulse{0%{r:10;opacity:.8}100%{r:30;opacity:0}}
+@keyframes pingPulse{0%{r:8;opacity:.8}100%{r:24;opacity:0}}
 .ping-r1{animation:pingPulse 1.8s ease-out infinite}
 .ping-r2{animation:pingPulse 1.8s ease-out .6s infinite}
 .ping-r3{animation:pingPulse 1.8s ease-out 1.2s infinite}
@@ -71,11 +72,11 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 .belt-caption em{color:var(--sky);font-style:normal}
 .section-header{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .section-title{font-size:17px;font-weight:600}
-.btn-add{display:flex;align-items:center;gap:6px;background:var(--sky);color:var(--white);border:none;border-radius:10px;padding:8px 14px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.btn-add{display:flex;align-items:center;gap:6px;background:linear-gradient(160deg,var(--sky),var(--deep));color:var(--white);border:none;border-radius:10px;padding:8px 14px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s;box-shadow:0 5px 14px rgba(0,153,230,.3)}
 .btn-add:active{opacity:.8}
 .bags-list{display:flex;flex-direction:column;gap:10px}
-.bag-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:14px 16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;gap:14px;transition:border-color .2s}
-.bag-card-icon{width:42px;height:42px;background:rgba(0,153,230,.15);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bag-card{background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.045));border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:14px 16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;gap:14px;transition:border-color .2s}
+.bag-card-icon{width:42px;height:42px;background:linear-gradient(160deg,rgba(0,153,230,.26),rgba(0,107,181,.12));border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .bag-card-info{flex:1;min-width:0}
 .bag-card-name{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bag-card-status{font-size:12px;color:var(--muted);margin-top:2px}
@@ -89,10 +90,10 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 .crew-header h2{font-family:'DM Serif Display',serif;font-size:23px;margin-bottom:4px}
 .crew-header p{color:var(--muted);font-size:14px}
 .crew-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.crew-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:16px 14px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;transition:border-color .2s,background .2s;display:flex;flex-direction:column;gap:10px}
+.crew-card{background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.045));border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:16px 14px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;transition:border-color .2s,background .2s;display:flex;flex-direction:column;gap:10px}
 .crew-card:active{border-color:var(--sky);background:rgba(0,153,230,.09)}
 .crew-card.wide{grid-column:span 2;flex-direction:row;align-items:center}
-.crew-card-icon{width:40px;height:40px;background:rgba(0,153,230,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.crew-card-icon{width:40px;height:40px;background:linear-gradient(160deg,rgba(0,153,230,.26),rgba(0,107,181,.12));border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .crew-card-body{flex:1}
 .crew-card-name{font-weight:600;font-size:14px;margin-bottom:3px}
 .crew-card-desc{font-size:12px;color:var(--muted);line-height:1.4}
@@ -100,14 +101,14 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 .settings-section{margin-bottom:24px}
 .settings-section-title{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;padding-left:4px}
 .settings-list{display:flex;flex-direction:column;gap:2px}
-.settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-sm);cursor:pointer;transition:background .15s;margin-bottom:2px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.045));border:1px solid var(--glass-border);border-radius:var(--radius-sm);cursor:pointer;transition:background .15s;margin-bottom:2px}
 .settings-row:active{background:rgba(255,255,255,.12)}
 .settings-row-label{font-size:15px;font-weight:500}
 .settings-row-value{font-size:14px;color:var(--muted)}
 .settings-row-right{display:flex;align-items:center;gap:8px;color:var(--muted)}
 .settings-logout{width:100%;padding:14px;background:rgba(255,80,80,.12);border:1px solid rgba(255,80,80,.25);border-radius:var(--radius-sm);color:#ff6b6b;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s}
 .settings-logout:active{background:rgba(255,80,80,.22)}
-.tab-bar{position:absolute;bottom:0;left:0;right:0;height:calc(var(--tab-h) + var(--safe-bottom));background:rgba(5,39,68,.92);border-top:1px solid var(--glass-border);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);display:flex;align-items:flex-start;padding-top:10px;padding-bottom:var(--safe-bottom);z-index:100}
+.tab-bar{position:absolute;bottom:0;left:0;right:0;height:calc(var(--tab-h) + var(--safe-bottom));background:linear-gradient(180deg,rgba(6,58,99,.94),rgba(5,39,68,.96));border-top:1px solid var(--glass-border);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);display:flex;align-items:flex-start;padding-top:10px;padding-bottom:var(--safe-bottom);z-index:100}
 .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;cursor:pointer;padding:4px 0;transition:opacity .15s}
 .tab-btn-icon{display:flex;align-items:center;justify-content:center}
 .tab-btn-label{font-family:'Outfit',sans-serif;font-size:11px;font-weight:500;color:var(--muted);transition:color .15s}
@@ -120,7 +121,7 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 .chat-handle{width:36px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin:12px auto 0;flex-shrink:0}
 .chat-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 12px;border-bottom:1px solid var(--glass-border);flex-shrink:0}
 .chat-agent-info{display:flex;align-items:center;gap:12px}
-.chat-agent-icon{width:38px;height:38px;background:rgba(0,153,230,.2);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.chat-agent-icon{width:38px;height:38px;background:linear-gradient(160deg,rgba(0,153,230,.26),rgba(0,107,181,.12));border-radius:10px;display:flex;align-items:center;justify-content:center}
 .chat-agent-name{font-weight:600;font-size:16px}
 .chat-agent-sub{font-size:12px;color:var(--muted)}
 .chat-close{width:34px;height:34px;background:var(--glass);border:1px solid var(--glass-border);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer}
@@ -129,7 +130,7 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 .msg.user{align-self:flex-end;align-items:flex-end}
 .msg.agent{align-self:flex-start;align-items:flex-start}
 .msg-bubble{padding:11px 14px;border-radius:16px;font-size:14px;line-height:1.5;word-wrap:break-word}
-.msg.user .msg-bubble{background:var(--sky);color:var(--white);border-bottom-right-radius:4px}
+.msg.user .msg-bubble{background:linear-gradient(160deg,var(--sky),var(--deep));color:var(--white);border-bottom-right-radius:4px}
 .msg.agent .msg-bubble{background:var(--glass);border:1px solid var(--glass-border);color:var(--white);border-bottom-left-radius:4px}
 .msg-time{font-size:10px;color:var(--muted);padding:0 4px}
 .chat-typing{display:flex;gap:5px;align-items:center;padding:11px 14px;background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;border-bottom-left-radius:4px;width:fit-content}
@@ -141,7 +142,7 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 .chat-input{flex:1;min-height:42px;max-height:120px;background:rgba(255,255,255,.07);border:1px solid var(--glass-border);border-radius:14px;color:var(--white);font-family:'Outfit',sans-serif;font-size:15px;padding:10px 14px;outline:none;resize:none;-webkit-appearance:none;transition:border-color .2s;line-height:1.4}
 .chat-input:focus{border-color:var(--sky)}
 .chat-input::placeholder{color:rgba(255,255,255,.3)}
-.chat-send-btn{width:42px;height:42px;flex-shrink:0;background:var(--yellow);color:var(--ink);border:none;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .15s}
+.chat-send-btn{width:42px;height:42px;flex-shrink:0;background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0) 55%),var(--yellow);color:var(--ink);border:none;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .15s;box-shadow:0 5px 14px rgba(255,214,0,.22)}
 .chat-send-btn:active{opacity:.8}
 .chat-mic-btn{width:42px;height:42px;flex-shrink:0;background:rgba(255,255,255,.08);border:1px solid var(--glass-border);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
 .chat-mic-btn.listening{background:#e5484d;border-color:#e5484d;animation:micPulse 1s ease-in-out infinite}
@@ -192,27 +193,27 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 [dir="rtl"] .msg.agent{align-self:flex-end;align-items:flex-end}
 .ct-title{font-family:'DM Serif Display',serif;font-size:22px}
 .ct-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 20px calc(24px + var(--safe-bottom));display:flex;flex-direction:column;gap:18px}
-.ct-tile{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:14px 16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .2s,background .2s;flex-shrink:0}
+.ct-tile{background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.045));border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:14px 16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .2s,background .2s;flex-shrink:0}
 .ct-tile:active{border-color:var(--sky);background:rgba(0,153,230,.09)}
-.ct-tile-icon{width:42px;height:42px;background:rgba(0,153,230,.15);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ct-tile-icon{width:42px;height:42px;background:linear-gradient(160deg,rgba(0,153,230,.26),rgba(0,107,181,.12));border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .ct-tile-body{flex:1;min-width:0}
 .ct-tile-name{font-weight:600;font-size:15px}
 .ct-tile-desc{font-size:12px;color:var(--muted);margin-top:2px}
-.ct-panel{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:30px 22px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;flex-shrink:0}
-.ct-illus{width:72px;height:72px;background:rgba(0,153,230,.15);border-radius:20px;display:flex;align-items:center;justify-content:center}
+.ct-panel{background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.045));border:1px solid var(--glass-border);border-radius:var(--radius);padding:30px 22px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;flex-shrink:0;box-shadow:0 12px 32px rgba(0,0,0,.2)}
+.ct-illus{width:72px;height:72px;background:linear-gradient(160deg,rgba(0,153,230,.26),rgba(0,107,181,.12));border-radius:20px;display:flex;align-items:center;justify-content:center}
 .ct-heading{font-family:'DM Serif Display',serif;font-size:21px;line-height:1.3}
 .ct-sub{font-size:14px;color:var(--muted);line-height:1.55;max-width:300px}
-.btn-scan{width:100%;max-width:300px;padding:15px;background:var(--sky);color:var(--white);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s;letter-spacing:.01em;margin-top:4px}
+.btn-scan{width:100%;max-width:300px;padding:15px;background:linear-gradient(160deg,var(--sky),var(--deep));color:var(--white);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s;letter-spacing:.01em;margin-top:4px;box-shadow:0 6px 16px rgba(0,153,230,.3)}
 .btn-scan:active{opacity:.82}
 .ct-spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,.15);border-top-color:var(--sky);border-radius:50%;animation:ctSpin .9s linear infinite}
 .ct-spinner.small{width:20px;height:20px;border-width:2.5px;flex-shrink:0}
 @keyframes ctSpin{to{transform:rotate(360deg)}}
 .ct-list{display:flex;flex-direction:column;gap:10px}
-.ct-device{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:14px 16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;gap:14px;transition:border-color .2s,background .2s}
+.ct-device{background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.045));border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:14px 16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;gap:14px;transition:border-color .2s,background .2s}
 .ct-device[data-id]{cursor:pointer}
 .ct-device[data-id]:active{border-color:var(--sky);background:rgba(0,153,230,.09)}
 .ct-device.disabled{opacity:.5;pointer-events:none}
-.ct-device-icon{width:42px;height:42px;background:rgba(0,153,230,.15);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ct-device-icon{width:42px;height:42px;background:linear-gradient(160deg,rgba(0,153,230,.26),rgba(0,107,181,.12));border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .ct-device-info{flex:1;min-width:0}
 .ct-device-name{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ct-device-sub{font-size:12px;color:var(--muted);margin-top:3px;display:flex;align-items:center;gap:6px}
@@ -231,7 +232,7 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
     </div>
     <div class="auth-logo-text">Bag<span>Ping</span></div>
   </div>
-  <button class="auth-lang-btn" id="btn-auth-lang" aria-label="Language">
+  <button class="auth-lang-btn" id="btn-auth-lang" aria-label="Language" data-i18n-aria="settings_language">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M3 12h18" stroke="currentColor" stroke-width="1.7"/><path d="M12 3c2.6 2.6 2.6 15.4 0 18M12 3c-2.6 2.6-2.6 15.4 0 18" stroke="currentColor" stroke-width="1.7"/></svg>
     <span id="auth-lang-label">English</span>
   </button>
@@ -268,7 +269,7 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
       </div>
       <div class="header-logo-text">Bag<span>Ping</span></div>
     </div>
-    <button class="header-btn" id="btn-open-chat" aria-label="Chat">
+    <button class="header-btn" id="btn-open-chat" aria-label="Chat" data-i18n-aria="crew_title">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" stroke="rgba(255,255,255,.85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
   </div>
@@ -279,10 +280,10 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
         <rect x="10" y="56" width="300" height="20" rx="10" fill="rgba(255,255,255,.06)"/>
         <path class="belt-anim" d="M10 66 L310 66" stroke="rgba(255,255,255,.16)" stroke-width="2" stroke-dasharray="8 24" stroke-linecap="round"/>
         <rect x="250" y="50" width="60" height="30" rx="12" fill="rgba(0,153,230,.10)" stroke="rgba(0,153,230,.30)" stroke-width="1.2"/>
-        <g transform="translate(283 44)">
-          <circle class="ping-r1" cx="0" cy="0" r="9" fill="none" stroke="#0099E6" stroke-width="1.8"/>
-          <circle class="ping-r2" cx="0" cy="0" r="9" fill="none" stroke="#0099E6" stroke-width="1.5"/>
-          <circle class="ping-r3" cx="0" cy="0" r="9" fill="none" stroke="#0099E6" stroke-width="1.2"/>
+        <g transform="translate(280 62)">
+          <circle class="ping-r1" cx="0" cy="0" r="8" fill="none" stroke="#0099E6" stroke-width="1.8"/>
+          <circle class="ping-r2" cx="0" cy="0" r="8" fill="none" stroke="#0099E6" stroke-width="1.5"/>
+          <circle class="ping-r3" cx="0" cy="0" r="8" fill="none" stroke="#0099E6" stroke-width="1.2"/>
           <circle cx="0" cy="0" r="3.4" fill="#0099E6"/>
         </g>
         <g transform="translate(6 26)" opacity="0">
@@ -314,8 +315,8 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10-5 4V3l5 4L7 17" stroke="#0099E6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <div class="ct-tile-body">
-        <div class="ct-tile-name">Connect your tag</div>
-        <div class="ct-tile-desc" id="ct-tile-desc">Pair a BagPing tag over Bluetooth</div>
+        <div class="ct-tile-name" data-i18n="ct_tile_title">Connect your tag</div>
+        <div class="ct-tile-desc" id="ct-tile-desc" data-i18n="ct_tile_desc">Pair a BagPing tag over Bluetooth</div>
       </div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M9 6l6 6-6 6" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
@@ -448,15 +449,15 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 
 <div id="screen-connect" class="screen">
   <div class="header">
-    <button class="header-btn" id="ct-back" aria-label="Back">
+    <button class="header-btn" id="ct-back" aria-label="Back" data-i18n-aria="auth_back">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="rgba(255,255,255,.85)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
-    <div class="ct-title">Connect your tag</div>
+    <div class="ct-title" data-i18n="ct_tile_title">Connect your tag</div>
     <div style="width:38px;flex-shrink:0"></div>
   </div>
   <div class="ct-body">
     <div id="ct-connected-section" style="display:none">
-      <div class="settings-section-title">Connected tags</div>
+      <div class="settings-section-title" data-i18n="ct_connected_title">Connected tags</div>
       <div class="ct-list" id="ct-connected-list"></div>
     </div>
     <div id="ct-panel-wrap"></div>
@@ -474,20 +475,20 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
           <div class="chat-agent-sub" id="chat-agent-sub">BagPing AI Crew</div>
         </div>
       </div>
-      <button class="chat-voice-toggle" id="chat-voice-toggle" aria-label="Voice on/off">
+      <button class="chat-voice-toggle" id="chat-voice-toggle" aria-label="Voice on/off" data-i18n-aria="aria_voice">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 10v4h4l5 5V5L7 10H3z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M16 9a3 3 0 0 1 0 6M18.5 6.5a7 7 0 0 1 0 11" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
-      <button class="chat-close" id="chat-close" aria-label="Close">
+      <button class="chat-close" id="chat-close" aria-label="Close" data-i18n-aria="aria_close">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
     </div>
     <div class="chat-messages" id="chat-messages"></div>
     <div class="chat-input-area">
       <textarea class="chat-input" id="chat-input" rows="1" placeholder="Ask your crew anything..."></textarea>
-      <button class="chat-mic-btn" id="chat-mic" aria-label="Speak">
+      <button class="chat-mic-btn" id="chat-mic" aria-label="Speak" data-i18n-aria="aria_speak">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" stroke="#fff" stroke-width="2"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
-      <button class="chat-send-btn" id="chat-send" aria-label="Send">
+      <button class="chat-send-btn" id="chat-send" aria-label="Send" data-i18n-aria="aria_send">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="#052744" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
@@ -540,7 +541,7 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
   <div class="legal-sheet">
     <div class="modal-handle"></div>
     <div class="legal-doc-head">
-      <button class="legal-doc-back" id="legal-doc-back" aria-label="Back">&#8249;</button>
+      <button class="legal-doc-back" id="legal-doc-back" aria-label="Back" data-i18n-aria="auth_back">&#8249;</button>
       <div class="lang-picker-title" id="legal-doc-title" style="margin:0">Privacy Policy</div>
     </div>
     <div class="legal-doc-body" id="legal-doc-body"></div>
@@ -553,18 +554,18 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
     <strong data-i18n="ping_title">Ping detected</strong>
     <span data-i18n="ping_body">Your bag is on the belt.</span>
   </div>
-  <button class="ping-dismiss" id="ping-dismiss" aria-label="Dismiss">
+  <button class="ping-dismiss" id="ping-dismiss" aria-label="Dismiss" data-i18n-aria="aria_dismiss">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round"/></svg>
   </button>
 </div>
 
 <div class="toast" id="toast"></div>
-
 <script src="voice.js"></script>
 <script src="i18n.js"></script>
 <script src="i18n-claim.js"></script>
 <script src="i18n-radar.js"></script>
 <script src="i18n-build21.js"></script>
+<script src="i18n-connect.js"></script>
 <script>
 const LANG_NAMES = {en:'English',es:'Español',fr:'Français',de:'Deutsch',it:'Italiano',pt:'Português',ar:'العربية',zh:'中文',ja:'日本語',ko:'한국어',ru:'Русский',nl:'Nederlands',pl:'Polski',tr:'Türkçe',sv:'Svenska',da:'Dansk',fi:'Suomi',el:'Ελληνικά',he:'עברית'};
 const RTL_LANGS = ['ar','he'];
@@ -659,11 +660,21 @@ function t(key){
   return key;
 }
 
+/* t + placeholder substitution: tf('ct_n_connected', {n: 3}) */
+function tf(key, map){
+  var s = t(key);
+  if (map) for (var k in map) s = s.split('{' + k + '}').join(map[k]);
+  return s;
+}
+
 function applyI18n(){
   document.documentElement.lang = state.lang;
   document.documentElement.dir = RTL_LANGS.includes(state.lang) ? 'rtl' : 'ltr';
   document.querySelectorAll('[data-i18n]').forEach(el=>{
     el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el=>{
+    el.setAttribute('aria-label', t(el.getAttribute('data-i18n-aria')));
   });
   const phoneEl = document.getElementById('input-phone');
   if (phoneEl) phoneEl.placeholder = t('auth_phone_placeholder');
@@ -681,6 +692,10 @@ function applyI18n(){
   if (_authLangLbl) _authLangLbl.textContent = LANG_NAMES[state.lang];
   const notifValue = document.getElementById('settings-notif-value');
   if (notifValue) notifValue.textContent = state.notif ? t('settings_notifications_on') : t('settings_notifications_off');
+  /* Connect Tag flow: refresh imperative strings after a language switch */
+  updateConnectTile();
+  const sc = document.getElementById('screen-connect');
+  if (sc && sc.classList.contains('active')) renderConnect();
 }
 
 function renderBags(){
@@ -772,7 +787,7 @@ async function sendCode(){
   var _hint = document.getElementById('auth-hint-code');
   if (_hint) {
     if (SMS_ENABLED) { _hint.style.display='none'; }
-    else { _hint.textContent = 'Beta access - enter code ' + DEMO_CODE + ' to continue.'; _hint.style.display='block'; }
+    else { _hint.textContent = tf('auth_beta_hint', {code: DEMO_CODE}); _hint.style.display='block'; }
   }
   document.getElementById('input-code').focus();
 }
@@ -784,7 +799,7 @@ async function verifyCode(){
     return;
   }
   if (!SMS_ENABLED) {
-    if (code !== DEMO_CODE) { showAuthError('code', 'Beta access code is ' + DEMO_CODE); return; }
+    if (code !== DEMO_CODE) { showAuthError('code', tf('auth_beta_wrong', {code: DEMO_CODE})); return; }
   } else {
     try {
       const r = await fetch(API_BASE + '/api/auth/verify-code', {
@@ -1137,15 +1152,17 @@ var ctState = 'idle';        /* idle | scanning | found | empty | denied | paire
 var ctDevices = [];
 var ctConnectingId = null;
 var ctPairedName = '';
+var ctHasScanned = false;    /* drives the single scan button's label */
 var connectedTags = [];      /* in-memory only - persists while the app is open */
 
 // MOCK - replace with real BLE plugin call next session.
+// Names mimic real BLE advertising: product + short device suffix (not localized).
 async function scanForTags(){
   await new Promise(function(res){ setTimeout(res, 2000); });
   var mockConnect = function(){ return new Promise(function(res){ setTimeout(res, 1400); }); };
   return [
-    { id: 'BP-TAG-0001', name: 'BagPing Tag - Blue',     signal: 'strong', rssi: -48, connect: mockConnect },
-    { id: 'BP-TAG-0002', name: 'BagPing Tag - Carry-on', signal: 'medium', rssi: -67, connect: mockConnect }
+    { id: 'BP-TAG-0001', name: 'BagPing Tag A7F3', signal: 'strong', rssi: -48, connect: mockConnect },
+    { id: 'BP-TAG-0002', name: 'BagPing Tag C2E9', signal: 'medium', rssi: -67, connect: mockConnect }
   ];
   /* To exercise the other states without hardware, temporarily use:
        return [];                            -> Empty state
@@ -1170,15 +1187,15 @@ function ctBars(signal){
 }
 
 function ctSignalLabel(signal){
-  return signal === 'strong' ? 'Strong signal' : (signal === 'medium' ? 'Medium signal' : 'Weak signal');
+  return signal === 'strong' ? t('ct_signal_strong') : (signal === 'medium' ? t('ct_signal_medium') : t('ct_signal_weak'));
 }
 
 function updateConnectTile(){
   var el = document.getElementById('ct-tile-desc');
-  if (!el) return;
-  if (connectedTags.length === 0) el.textContent = 'Pair a BagPing tag over Bluetooth';
-  else if (connectedTags.length === 1) el.textContent = '1 tag connected';
-  else el.textContent = connectedTags.length + ' tags connected';
+  if (!el || typeof connectedTags === 'undefined' || !connectedTags) return;
+  if (connectedTags.length === 0) el.textContent = t('ct_tile_desc');
+  else if (connectedTags.length === 1) el.textContent = t('ct_one_connected');
+  else el.textContent = tf('ct_n_connected', {n: connectedTags.length});
 }
 
 function openConnect(){
@@ -1201,7 +1218,7 @@ function renderConnect(){
           '<div class="ct-device-icon">' + ctTagIcon() + '</div>' +
           '<div class="ct-device-info">' +
             '<div class="ct-device-name">' + escapeHtml(c.name) + '</div>' +
-            '<div class="ct-device-sub"><span class="ct-connected-label">Connected</span></div>' +
+            '<div class="ct-device-sub"><span class="ct-connected-label">' + t('ct_connected_label') + '</span></div>' +
           '</div>' +
           ctCheckIcon() +
         '</div>';
@@ -1212,6 +1229,15 @@ function renderConnect(){
   updateConnectTile();
 }
 
+/* ONE scan button for every state. Same id, same handler; only the label
+   and visual weight change with context. */
+function ctScanBtnHtml(primary){
+  var label = ctHasScanned ? t('ct_scan_again') : t('ct_scan');
+  return primary
+    ? '<button class="btn-scan" id="ct-scan-btn">' + label + '</button>'
+    : '<button class="btn-ghost" id="ct-scan-btn">' + label + '</button>';
+}
+
 function renderCtPanel(){
   var wrap = document.getElementById('ct-panel-wrap');
   if (!wrap) return;
@@ -1219,27 +1245,27 @@ function renderCtPanel(){
   if (ctState === 'idle'){
     html = '<div class="ct-panel">' +
       '<div class="ct-illus"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10-5 4V3l5 4L7 17" stroke="#0099E6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
-      '<div class="ct-heading">Connect your BagPing tag</div>' +
-      '<div class="ct-sub">Bring your tag close and make sure it is powered on, then scan.</div>' +
-      '<button class="btn-scan" id="ct-scan-btn">Scan for tags</button>' +
+      '<div class="ct-heading">' + t('ct_idle_title') + '</div>' +
+      '<div class="ct-sub">' + t('ct_idle_sub') + '</div>' +
+      ctScanBtnHtml(true) +
       '</div>';
   } else if (ctState === 'scanning'){
     html = '<div class="ct-panel">' +
-      '<div class="ct-spinner" role="status" aria-label="Scanning"></div>' +
-      '<div class="ct-heading">Looking for nearby tags...</div>' +
-      '<div class="ct-sub">Keep your tag within a few meters.</div>' +
+      '<div class="ct-spinner" role="status" aria-label="' + t('ct_scanning_title') + '"></div>' +
+      '<div class="ct-heading">' + t('ct_scanning_title') + '</div>' +
+      '<div class="ct-sub">' + t('ct_scanning_sub') + '</div>' +
       '</div>';
   } else if (ctState === 'found'){
     var connecting = !!ctConnectingId;
-    html = '<div class="settings-section-title">Tags found</div>' +
+    html = '<div class="settings-section-title">' + t('ct_found_title') + '</div>' +
       '<div class="ct-list">' +
       ctDevices.map(function(d){
         var isC = ctConnectingId === d.id;
         var right = isC
-          ? '<div class="ct-spinner small" role="status" aria-label="Connecting"></div>'
+          ? '<div class="ct-spinner small" role="status" aria-label="' + t('ct_connecting') + '"></div>'
           : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M9 6l6 6-6 6" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
         var sub = isC
-          ? '<span class="ct-connected-label">Connecting...</span>'
+          ? '<span class="ct-connected-label">' + t('ct_connecting') + '</span>'
           : ctBars(d.signal) + '<span>' + ctSignalLabel(d.signal) + '</span>';
         var cls = 'ct-device' + ((connecting && !isC) ? ' disabled' : '');
         var attr = connecting ? '' : ' data-id="' + escapeHtml(d.id) + '"';
@@ -1251,39 +1277,33 @@ function renderCtPanel(){
           '</div>' + right + '</div>';
       }).join('') +
       '</div>' +
-      (connecting ? '' : '<button class="btn-ghost" id="ct-rescan-btn">Scan again</button>');
+      (connecting ? '' : ctScanBtnHtml(false));
   } else if (ctState === 'empty'){
     html = '<div class="ct-panel">' +
       '<div class="ct-illus"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#0099E6" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="#0099E6" stroke-width="2" stroke-linecap="round"/></svg></div>' +
-      '<div class="ct-heading">No tags found</div>' +
-      '<div class="ct-sub">Make sure your tag is nearby and powered on.</div>' +
-      '<button class="btn-scan" id="ct-retry-btn">Retry</button>' +
+      '<div class="ct-heading">' + t('ct_empty_title') + '</div>' +
+      '<div class="ct-sub">' + t('ct_empty_sub') + '</div>' +
+      ctScanBtnHtml(true) +
       '</div>';
   } else if (ctState === 'denied'){
     html = '<div class="ct-panel">' +
       '<div class="ct-illus"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10-5 4V3l5 4L7 17" stroke="#0099E6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 3l18 18" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/></svg></div>' +
-      '<div class="ct-heading">Bluetooth permission needed</div>' +
-      '<div class="ct-sub">Bluetooth permission is needed to find your tag. Allow access in Settings, then retry.</div>' +
-      '<button class="btn-scan" id="ct-retry-btn">Retry</button>' +
+      '<div class="ct-heading">' + t('ct_denied_title') + '</div>' +
+      '<div class="ct-sub">' + t('ct_denied_sub') + '</div>' +
+      ctScanBtnHtml(true) +
       '</div>';
   } else if (ctState === 'paired'){
     html = '<div class="ct-panel">' +
       '<div class="ct-illus"><svg width="36" height="36" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#0099E6" stroke-width="2"/><path d="M8 12.5l2.6 2.6L16 9.5" stroke="#0099E6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
-      '<div class="ct-heading">Tag connected</div>' +
-      '<div class="ct-sub">' + escapeHtml(ctPairedName) + ' is paired and ready.</div>' +
-      '<button class="btn-scan" id="ct-done-btn">Done</button>' +
-      '<button class="btn-ghost" id="ct-more-btn">Scan for more tags</button>' +
+      '<div class="ct-heading">' + t('ct_paired_title') + '</div>' +
+      '<div class="ct-sub">' + tf('ct_paired_sub', {name: escapeHtml(ctPairedName)}) + '</div>' +
+      '<button class="btn-scan" id="ct-done-btn">' + t('ct_done') + '</button>' +
+      ctScanBtnHtml(false) +
       '</div>';
   }
   wrap.innerHTML = html;
   var sb = document.getElementById('ct-scan-btn');
   if (sb) sb.addEventListener('click', startScan);
-  var rb = document.getElementById('ct-retry-btn');
-  if (rb) rb.addEventListener('click', startScan);
-  var rs = document.getElementById('ct-rescan-btn');
-  if (rs) rs.addEventListener('click', startScan);
-  var mb = document.getElementById('ct-more-btn');
-  if (mb) mb.addEventListener('click', startScan);
   var db = document.getElementById('ct-done-btn');
   if (db) db.addEventListener('click', function(){ ctState = 'idle'; renderConnect(); });
   wrap.querySelectorAll('.ct-device[data-id]').forEach(function(el){
@@ -1293,6 +1313,7 @@ function renderCtPanel(){
 
 async function startScan(){
   if (ctState === 'scanning' || ctConnectingId) return;
+  ctHasScanned = true;
   ctState = 'scanning';
   ctDevices = [];
   renderConnect();
@@ -1329,7 +1350,7 @@ async function connectTag(id){
   } catch(e){
     console.error('[BagPing connect] pair failed', e);
     ctConnectingId = null;
-    toast('Could not connect. Try again.');
+    toast(t('ct_connect_failed'));
   }
   renderConnect();
 }
