@@ -1,15 +1,17 @@
 /*
  * BagPing native layer - the real belt ping.
  * v4: B4 belt sign removed (fake data - real belt assignments come from the
- * flight). Belt Hero scene rebuilt: gradient light, varied luggage (sizes,
- * shapes, offsets - real bags are not identical), uniform belt speed with
- * staggered spacing, ping marker seated on the bag at belt level. Optional
- * real-photo hero layer: if /img/belt-hero.jpg exists (PLACEHOLDER - Giorgos
- * supplies a commercially licensed photo, e.g. Unsplash/Pexels), it replaces
- * the illustration with a natural-tone photograph + ping overlay. All
- * user-facing strings route through T() (i18n.js key, English fallback).
- * Respects prefers-reduced-motion. Radar card design unchanged (approved in
- * build 20); its subline copy updated per amendment.
+ * flight). Optional real-photo hero layer: if /img/belt-hero.jpg exists
+ * (PLACEHOLDER - Giorgos supplies a commercially licensed photo, e.g.
+ * Unsplash/Pexels), it replaces the illustration with a natural-tone
+ * photograph + ping overlay. All user-facing strings route through T()
+ * (i18n.js key, English fallback). Respects prefers-reduced-motion.
+ * v5 amendments: (1) vivid color pass - card becomes a blue field with real
+ * shadow depth; (2) bp:langchange listener - Belt Radar card and panel
+ * re-render on every language switch; (4) hero rebuilt as the website's
+ * carousel: perspective oval, orbiting bags with scale change, varied
+ * luggage, BAGGAGE CLAIM sign, tagged yellow bag pinging. Radar card icon
+ * redrawn to belong to the same carousel family.
  */
 (function () {
   'use strict';
@@ -263,18 +265,18 @@
   }
 
   /* ---- The belt hero scene ---------------------------------------------
-   * Amendments applied:
-   *  - B4 sign REMOVED (hardcoded belt number was fake data).
-   *  - Depth and light from gradients and opacity only - brand palette,
-   *    no new hues.
-   *  - Varied luggage: four bags of different sizes/shapes/heights, all
-   *    moving at the SAME speed (one belt), staggered by delay.
-   *  - Ping marker seated on the tagged bag at belt level, rings tightened.
-   *  - Optional real-photo layer: if /img/belt-hero.jpg is deployed
-   *    (PLACEHOLDER - commercially licensed photo, natural tones, supplied
-   *    by Giorgos from Unsplash/Pexels), it replaces the illustration and
-   *    keeps a ping overlay. No file -> illustrated scene, no error.
-   * Respects prefers-reduced-motion (animations off).
+   * Amendment 4: the app adopts the website's carousel so both platforms
+   * share one visual language. Ported and reframed from the site's 520x360
+   * scene to a 400x200 strip that fits the glass card:
+   *  - perspective oval carousel with central hub and belt face
+   *  - bags orbit via animateMotion on an elliptical path (#bpLoop), one
+   *    shared speed, staggered by negative begin; scale swells 0.55 -> 1.15
+   *    through the front of the loop for depth
+   *  - varied luggage: upright, ribbed, duffel, backpack, tan case
+   *  - BAGGAGE CLAIM sign; tagged yellow BagPing bag with pulsing ping rings
+   *  - brand palette only; SMIL timeline frozen under reduced motion
+   * Optional real-photo layer unchanged: if /img/belt-hero.jpg is deployed
+   * it replaces the illustration and keeps the ping overlay.
    */
   function beautifyBelt() {
     var hero = document.querySelector('.belt-hero');
@@ -282,98 +284,74 @@
 
     var style = document.createElement('style');
     style.textContent =
-      '#bp-belt-scene{width:100%;height:auto;display:block}' +
-      '@keyframes bpSlats{to{stroke-dashoffset:-28px}}' +
-      '@keyframes bpMove{0%{transform:translateX(-130px)}100%{transform:translateX(470px)}}' +
+      '#bp-belt-scene{width:100%;height:auto;display:block;border-radius:14px}' +
       '@keyframes bpRing{0%{r:5;opacity:.85}100%{r:22;opacity:0}}' +
       '@keyframes bpGlow{0%,100%{opacity:.4}50%{opacity:.85}}' +
-      '#bp-belt-scene .bp-slats{animation:bpSlats 1.2s linear infinite}' +
-      '#bp-belt-scene .bp-bag{animation:bpMove 11s linear infinite}' +
-      '#bp-belt-scene .bp-d1{animation-delay:-5.5s}' +
-      '#bp-belt-scene .bp-d2{animation-delay:-2.2s}' +
-      '#bp-belt-scene .bp-d3{animation-delay:-8.25s}' +
-      '#bp-belt-scene .bp-d4{animation-delay:-3.85s}' +
-      '#bp-belt-scene .bp-ring1,#bp-hero-ping .bp-ring1{animation:bpRing 2s ease-out infinite}' +
-      '#bp-belt-scene .bp-ring2,#bp-hero-ping .bp-ring2{animation:bpRing 2s ease-out infinite .66s}' +
-      '#bp-belt-scene .bp-ring3,#bp-hero-ping .bp-ring3{animation:bpRing 2s ease-out infinite 1.33s}' +
-      '#bp-belt-scene .bp-glow,#bp-hero-ping .bp-glow{animation:bpGlow 3s ease-in-out infinite}' +
-      '@media (prefers-reduced-motion: reduce){#bp-belt-scene *,#bp-hero-ping *{animation:none !important}}';
+      '#bp-hero-ping .bp-ring1{animation:bpRing 2s ease-out infinite}' +
+      '#bp-hero-ping .bp-ring2{animation:bpRing 2s ease-out infinite .66s}' +
+      '#bp-hero-ping .bp-ring3{animation:bpRing 2s ease-out infinite 1.33s}' +
+      '#bp-hero-ping .bp-glow{animation:bpGlow 3s ease-in-out infinite}' +
+      '@media (prefers-reduced-motion: reduce){#bp-hero-ping *{animation:none !important}}';
     document.head.appendChild(style);
+
+    /* One bag on the carousel. Same speed for every bag (one belt), staggered
+       by negative begin; scale swells through the front of the loop - the
+       website scene's perspective, reframed for the app card. */
+    function bag(inner, begin, tilt) {
+      return '<g><g>' +
+        '<g' + (tilt ? ' transform="' + tilt + '"' : '') + '>' + inner + '</g>' +
+        '<animateTransform attributeName="transform" type="scale" additive="sum" keyTimes="0;0.5;1" values="0.55;1.15;0.55" dur="16s" begin="' + begin + '" repeatCount="indefinite"/>' +
+        '</g>' +
+        '<animateMotion dur="16s" begin="' + begin + '" rotate="0" repeatCount="indefinite"><mpath xlink:href="#bpLoop" href="#bpLoop"/></animateMotion>' +
+        '</g>';
+    }
 
     var wrap = document.createElement('div');
     wrap.innerHTML =
-      '<svg id="bp-belt-scene" viewBox="0 0 400 170" role="img" aria-label="' + T('belt_scene_label', 'Bags moving on the arrival belt; your tagged bag is pinging') + '">' +
+      '<svg id="bp-belt-scene" viewBox="0 0 400 200" role="img" aria-label="' + T('belt_scene_label', 'Bags circling the arrival carousel; your tagged bag is pinging') + '">' +
         '<defs>' +
-          '<linearGradient id="bpSkyG" x1="0" y1="0" x2="0" y2="1">' +
-            '<stop offset="0" stop-color="#0d4a78"/><stop offset="1" stop-color="' + NAVY + '"/>' +
-          '</linearGradient>' +
-          '<linearGradient id="bpBeltG" x1="0" y1="0" x2="0" y2="1">' +
-            '<stop offset="0" stop-color="#10416a"/><stop offset="1" stop-color="#082c49"/>' +
-          '</linearGradient>' +
-          '<linearGradient id="bpBagYou" x1="0" y1="0" x2="0" y2="1">' +
-            '<stop offset="0" stop-color="' + SKY + '"/><stop offset="1" stop-color="' + DEEP + '"/>' +
-          '</linearGradient>' +
-          '<linearGradient id="bpBagB" x1="0" y1="0" x2="0" y2="1">' +
-            '<stop offset="0" stop-color="#1d5d8f"/><stop offset="1" stop-color="#123f63"/>' +
-          '</linearGradient>' +
-          '<radialGradient id="bpLight" cx="0.5" cy="0" r="1">' +
-            '<stop offset="0" stop-color="rgba(0,153,230,.22)"/><stop offset="1" stop-color="rgba(0,153,230,0)"/>' +
-          '</radialGradient>' +
-          '<clipPath id="bpBeltClip"><rect x="18" y="96" width="364" height="46" rx="23"/></clipPath>' +
+          '<linearGradient id="bpSceneBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0C1E33"/><stop offset="1" stop-color="#050F1B"/></linearGradient>' +
+          '<linearGradient id="bpBeltTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#33465C"/><stop offset="1" stop-color="#1B2937"/></linearGradient>' +
+          '<linearGradient id="bpBeltFace" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16222F"/><stop offset="1" stop-color="#0A121C"/></linearGradient>' +
+          '<radialGradient id="bpHub" cx="0.5" cy="0.4" r="0.65"><stop offset="0" stop-color="#26374A"/><stop offset="1" stop-color="#101C28"/></radialGradient>' +
+          '<linearGradient id="bpSign" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + SKY + '"/><stop offset="1" stop-color="' + DEEP + '"/></linearGradient>' +
+          '<radialGradient id="bpPing" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="' + YELLOW + '" stop-opacity=".45"/><stop offset="1" stop-color="' + YELLOW + '" stop-opacity="0"/></radialGradient>' +
+          '<radialGradient id="bpFloor" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="' + SKY + '" stop-opacity=".12"/><stop offset="1" stop-color="' + SKY + '" stop-opacity="0"/></radialGradient>' +
         '</defs>' +
-        '<rect width="400" height="170" fill="url(#bpSkyG)" rx="18"/>' +
-        /* overhead light wash */
-        '<ellipse cx="200" cy="6" rx="200" ry="80" fill="url(#bpLight)"/>' +
-        /* terminal windows with a light shelf beneath */
-        '<g opacity=".2"><rect x="34" y="22" width="52" height="30" rx="4" fill="' + SKY + '"/><rect x="96" y="22" width="52" height="30" rx="4" fill="' + SKY + '"/><rect x="158" y="22" width="52" height="30" rx="4" fill="' + SKY + '"/><rect x="220" y="22" width="52" height="30" rx="4" fill="' + SKY + '"/><rect x="282" y="22" width="52" height="30" rx="4" fill="' + SKY + '"/></g>' +
-        '<rect x="34" y="53" width="300" height="1.5" fill="rgba(255,255,255,.07)"/>' +
-        /* belt body: gradient + top edge highlight (no belt-number sign) */
-        '<rect x="18" y="96" width="364" height="46" rx="23" fill="url(#bpBeltG)" stroke="#16466b" stroke-width="1.5"/>' +
-        '<line x1="30" y1="98.5" x2="370" y2="98.5" stroke="rgba(255,255,255,.09)" stroke-width="2" stroke-linecap="round"/>' +
-        '<line class="bp-slats" x1="24" y1="119" x2="376" y2="119" stroke="#123a5c" stroke-width="38" stroke-dasharray="4 24" stroke-linecap="butt"/>' +
-        /* varied luggage, one belt speed, staggered spacing */
-        '<g clip-path="url(#bpBeltClip)">' +
-          /* mid upright suitcase */
-          '<g class="bp-bag bp-d2">' +
-            '<rect x="0" y="104" width="36" height="30" rx="6" fill="url(#bpBagB)"/>' +
-            '<path d="M11 104 v-4 a2.6 2.6 0 0 1 2.6-2.6 h8 a2.6 2.6 0 0 1 2.6 2.6 v4" stroke="#1d5d8f" stroke-width="3" fill="none"/>' +
-            '<rect x="2" y="116" width="32" height="2.5" fill="rgba(5,39,68,.5)"/>' +
-          '</g>' +
-          /* soft duffel, low and long */
-          '<g class="bp-bag bp-d3">' +
-            '<rect x="0" y="114" width="48" height="20" rx="10" fill="rgba(0,107,181,.5)"/>' +
-            '<rect x="12" y="112" width="3" height="24" rx="1.5" fill="rgba(255,255,255,.22)"/>' +
-            '<rect x="33" y="112" width="3" height="24" rx="1.5" fill="rgba(255,255,255,.22)"/>' +
-            '<path d="M18 114 a6 6 0 0 1 12 0" stroke="rgba(255,255,255,.28)" stroke-width="2.5" fill="none"/>' +
-          '</g>' +
-          /* small cabin bag */
-          '<g class="bp-bag bp-d4">' +
-            '<rect x="0" y="110" width="24" height="24" rx="5" fill="rgba(255,255,255,.16)"/>' +
-            '<path d="M7 110 v-3 a2.2 2.2 0 0 1 2.2-2.2 h5.6 a2.2 2.2 0 0 1 2.2 2.2 v3" stroke="rgba(255,255,255,.26)" stroke-width="2.2" fill="none"/>' +
-          '</g>' +
-          /* the tagged bag - yours: gradient shell, wheels, tag pinging at belt level */
-          '<g class="bp-bag bp-d1">' +
-            '<rect x="0" y="100" width="46" height="34" rx="7" fill="url(#bpBagYou)" stroke="' + SKY + '" stroke-width="1.4"/>' +
-            '<path d="M14 100 v-5 a4 4 0 0 1 4-4 h10 a4 4 0 0 1 4 4 v5" stroke="' + DEEP + '" stroke-width="3" fill="none"/>' +
-            '<rect x="2" y="115" width="42" height="3" fill="rgba(5,39,68,.55)"/>' +
-            '<rect x="4" y="104" width="38" height="4" rx="2" fill="rgba(255,255,255,.18)"/>' +
-            '<circle cx="9" cy="134" r="2.6" fill="rgba(5,39,68,.7)"/>' +
-            '<circle cx="37" cy="134" r="2.6" fill="rgba(5,39,68,.7)"/>' +
-            '<circle class="bp-glow" cx="39" cy="127" r="5" fill="' + YELLOW + '"/>' +
-            '<circle class="bp-ring1" cx="39" cy="127" fill="none" stroke="' + YELLOW + '" stroke-width="1.6"/>' +
-            '<circle class="bp-ring2" cx="39" cy="127" fill="none" stroke="' + YELLOW + '" stroke-width="1.4"/>' +
-            '<circle class="bp-ring3" cx="39" cy="127" fill="none" stroke="' + YELLOW + '" stroke-width="1.2"/>' +
-          '</g>' +
+        '<rect width="400" height="200" rx="16" fill="url(#bpSceneBg)"/>' +
+        '<ellipse cx="200" cy="150" rx="185" ry="34" fill="url(#bpFloor)"/>' +
+        '<g transform="translate(125 10)">' +
+          '<rect width="150" height="26" rx="6" fill="url(#bpSign)"/>' +
+          '<g transform="translate(11 6)" fill="none" stroke="#fff" stroke-width="1.8"><rect x="0" y="2.5" width="11" height="9.5" rx="1.4"/><path d="M3.4 2.5V1.4A1.4 1.4 0 0 1 4.8 0h1.4a1.4 1.4 0 0 1 1.4 1.4v1.1"/></g>' +
+          '<text x="32" y="17.5" fill="#fff" font-family="Outfit,Arial,sans-serif" font-size="11" font-weight="800" letter-spacing="1.2">BAGGAGE CLAIM</text>' +
         '</g>' +
-        /* floor line + soft reflected glow under the belt */
-        '<ellipse cx="200" cy="152" rx="150" ry="8" fill="rgba(0,153,230,.08)"/>' +
-        '<line x1="10" y1="156" x2="390" y2="156" stroke="#16466b" stroke-width="1.5" opacity=".6"/>' +
+        '<path d="M30,118 A170,52 0 0,0 370,118 L370,140 A170,52 0 0,1 30,140 Z" fill="url(#bpBeltFace)"/>' +
+        '<ellipse cx="200" cy="118" rx="170" ry="52" fill="url(#bpBeltTop)"/>' +
+        '<ellipse cx="200" cy="118" rx="131" ry="38" fill="none" stroke="#43596F" stroke-width="30" stroke-dasharray="4 22" opacity=".5"><animate attributeName="stroke-dashoffset" from="0" to="-104" dur="1.5s" repeatCount="indefinite"/></ellipse>' +
+        '<ellipse cx="200" cy="115" rx="92" ry="26" fill="url(#bpHub)" stroke="#0A121C" stroke-width="2"/>' +
+        '<ellipse cx="200" cy="118" rx="170" ry="52" fill="none" stroke="#0A121C" stroke-width="2"/>' +
+        '<path id="bpLoop" d="M200,70 A135,40 0 0,1 200,150 A135,40 0 0,1 200,70" fill="none"/>' +
+        bag('<rect x="-14" y="-17" width="28" height="31" rx="5" fill="#B0562F"/><rect x="-14" y="-4" width="28" height="3.4" fill="#00000026"/><path d="M-6.5 -17v-3.4a6.5 6.5 0 0 1 13 0v3.4" fill="none" stroke="#7E3B1F" stroke-width="2.4"/>', '-0.5s', 'rotate(4)') +
+        bag('<rect x="-14" y="-17" width="28" height="31" rx="4" fill="#3E6E8E"/><line x1="-7" y1="-16" x2="-7" y2="13" stroke="#2A4C63" stroke-width="1.6" opacity=".55"/><line x1="0" y1="-16" x2="0" y2="13" stroke="#2A4C63" stroke-width="1.6" opacity=".55"/><line x1="7" y1="-16" x2="7" y2="13" stroke="#2A4C63" stroke-width="1.6" opacity=".55"/><path d="M-6 -17v-3.2a6 6 0 0 1 12 0v3.2" fill="none" stroke="#2A4C63" stroke-width="2.2"/>', '-3.2s', 'rotate(-3)') +
+        bag('<rect x="-18" y="-8" width="36" height="22" rx="11" fill="#8A93A0"/><path d="M-9 -8q9 -9 18 0" fill="none" stroke="#5E6671" stroke-width="2.4"/><rect x="-18" y="1" width="36" height="3" fill="#00000022"/>', '-5.9s', '') +
+        bag('<rect x="-12" y="-18" width="24" height="32" rx="9" fill="#6E7F52"/><rect x="-8" y="-2" width="16" height="13" rx="4" fill="#4C5938" opacity=".55"/><path d="M-9 -14c-4 6 -4 18 0 26M9 -14c4 6 4 18 0 26" fill="none" stroke="#4C5938" stroke-width="2"/>', '-10.7s', 'rotate(5)') +
+        bag('<rect x="-17" y="-13" width="34" height="27" rx="8" fill="#C2A36B"/><path d="M-8 -13v-3a8 8 0 0 1 16 0v3" fill="none" stroke="#8E7546" stroke-width="2.2"/><rect x="-17" y="-2" width="34" height="3" fill="#00000022"/>', '-13.4s', 'rotate(-2)') +
+        bag('<circle cx="0" cy="-2" r="34" fill="url(#bpPing)"><animate attributeName="r" values="22;42;22" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".7;0;.7" dur="2s" repeatCount="indefinite"/></circle><circle cx="0" cy="-2" r="18" fill="none" stroke="' + YELLOW + '" stroke-width="2"><animate attributeName="r" values="14;30" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0" dur="2s" repeatCount="indefinite"/></circle><rect x="-15" y="-19" width="30" height="35" rx="6" fill="' + YELLOW + '"/><rect x="-15" y="-19" width="30" height="35" rx="6" fill="none" stroke="' + NAVY + '" stroke-width="2"/><path d="M-7 -19v-3.6a7 7 0 0 1 14 0v3.6" fill="none" stroke="' + NAVY + '" stroke-width="2.4"/><rect x="-15" y="-5" width="30" height="3.2" fill="' + NAVY + '" opacity=".85"/><circle cx="0" cy="4" r="4.2" fill="' + NAVY + '"/><circle cx="0" cy="4" r="1.7" fill="' + YELLOW + '"/>', '-8.2s', '') +
       '</svg>';
     var scene = wrap.firstChild;
 
     var oldSvg = hero.querySelector('svg');
     if (oldSvg) hero.replaceChild(scene, oldSvg);
     else hero.insertBefore(scene, hero.firstChild);
+
+    /* SMIL ignores the CSS reduced-motion guard: freeze the timeline instead.
+       The negative begins keep the bags distributed around the loop. */
+    try {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches && scene.pauseAnimations) {
+        scene.setCurrentTime(0);
+        scene.pauseAnimations();
+      }
+    } catch (e) {}
 
     tryHeroPhoto(hero);
   }
@@ -429,25 +407,29 @@
 
   function buildCard() {
     var card = el('div', [
-      'background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.045))',
-      'border:1px solid var(--glass-border, rgba(255,255,255,.13))',
+      'background:linear-gradient(160deg, rgba(0,153,230,.20), rgba(0,107,181,.07))',
+      'border:1px solid var(--glass-border, rgba(0,153,230,.40))',
       'border-radius:20px', 'padding:16px 18px',
       'display:flex', 'align-items:center', 'gap:14px',
       'cursor:pointer', 'flex-shrink:0',
-      'box-shadow:0 10px 28px rgba(0,0,0,.2)',
+      'box-shadow:0 16px 44px rgba(0,0,0,.45)',
       'font-family:Outfit,system-ui,sans-serif'
     ].join(';'));
     card.id = 'bp-radar-card';
     card.setAttribute('role', 'button');
     card.setAttribute('aria-label', T('radar_aria', 'Belt Radar - pings as your bag gets closer'));
 
-    var icon = el('div', 'width:52px;height:52px;background:linear-gradient(160deg, rgba(0,153,230,.26), rgba(0,107,181,.12));border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0');
+    var icon = el('div', 'width:52px;height:52px;background:linear-gradient(160deg, rgba(0,153,230,.42), rgba(0,107,181,.18));border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0');
     icon.innerHTML =
-      '<svg width="30" height="30" viewBox="0 0 24 24" fill="none">' +
-        '<circle cx="12" cy="14" r="2.4" fill="' + YELLOW + '"/>' +
-        '<path d="M12 7.5a6.5 6.5 0 0 1 6.5 6.5" stroke="' + SKY + '" stroke-width="1.8" stroke-linecap="round"/>' +
-        '<path d="M12 3.5A10.5 10.5 0 0 1 22.5 14" stroke="' + SKY + '" stroke-width="1.8" stroke-linecap="round" opacity=".55"/>' +
-        '<path d="M12 7.5A6.5 6.5 0 0 0 5.5 14" stroke="' + SKY + '" stroke-width="1.8" stroke-linecap="round" opacity=".35"/>' +
+      '<svg width="32" height="30" viewBox="0 0 40 36" fill="none">' +
+        '<ellipse cx="20" cy="27" rx="17" ry="7.5" stroke="' + SKY + '" stroke-width="2"/>' +
+        '<ellipse cx="20" cy="27" rx="9" ry="3.5" fill="' + SKY + '" opacity=".28"/>' +
+        '<rect x="14" y="10" width="12" height="14" rx="2.5" fill="' + YELLOW + '"/>' +
+        '<rect x="14" y="10" width="12" height="14" rx="2.5" stroke="' + NAVY + '" stroke-width="1.4"/>' +
+        '<path d="M17 10V8.2a3 3 0 0 1 6 0V10" stroke="' + NAVY + '" stroke-width="1.6"/>' +
+        '<rect x="14" y="16" width="12" height="1.6" fill="' + NAVY + '"/>' +
+        '<path d="M29 8a7 7 0 0 1 3 5" stroke="' + YELLOW + '" stroke-width="1.8" stroke-linecap="round"/>' +
+        '<path d="M31 4a11 11 0 0 1 5 8" stroke="' + YELLOW + '" stroke-width="1.8" stroke-linecap="round" opacity=".55"/>' +
       '</svg>';
     card.appendChild(icon);
 
@@ -600,6 +582,20 @@
 
   /* ---- boot ---- */
   function boot() { load().then(function () { mount(); }); }
+  /* Amendment 2: Belt Radar strings must follow the app language. index.html
+     dispatches bp:langchange on every switch; rebuild the card and panel so
+     every imperatively-set string re-reads T(). Guarded so a pre-mount event
+     cannot half-build the UI. */
+  document.addEventListener('bp:langchange', function () {
+    if (!document.getElementById('bp-radar-panel')) return;
+    var card = document.getElementById('bp-radar-card');
+    if (card && card.parentNode) card.parentNode.removeChild(card);
+    buildCard();
+    if (ui.overlay) buildPanel(ui.overlay);
+    setMeter(state.monitoring ? state.lastProximity : 'unknown');
+    var scene = document.getElementById('bp-belt-scene');
+    if (scene) scene.setAttribute('aria-label', T('belt_scene_label', 'Bags circling the arrival carousel; your tagged bag is pinging'));
+  });
   if (window.cordova) document.addEventListener('deviceready', boot, false);
   else if (document.readyState === 'complete' || document.readyState === 'interactive') boot();
   else document.addEventListener('DOMContentLoaded', boot, false);
