@@ -190,6 +190,34 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 @media (prefers-reduced-motion:reduce){.belt-anim,.bag-float,.ping-r1,.ping-r2,.ping-r3,.chat-typing span,.ping-dot{animation:none}}
 [dir="rtl"] .msg.user{align-self:flex-start;align-items:flex-start}
 [dir="rtl"] .msg.agent{align-self:flex-end;align-items:flex-end}
+.ct-title{font-family:'DM Serif Display',serif;font-size:22px}
+.ct-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 20px calc(24px + var(--safe-bottom));display:flex;flex-direction:column;gap:18px}
+.ct-tile{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:14px 16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .2s,background .2s;flex-shrink:0}
+.ct-tile:active{border-color:var(--sky);background:rgba(0,153,230,.09)}
+.ct-tile-icon{width:42px;height:42px;background:rgba(0,153,230,.15);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ct-tile-body{flex:1;min-width:0}
+.ct-tile-name{font-weight:600;font-size:15px}
+.ct-tile-desc{font-size:12px;color:var(--muted);margin-top:2px}
+.ct-panel{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius);padding:30px 22px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;flex-shrink:0}
+.ct-illus{width:72px;height:72px;background:rgba(0,153,230,.15);border-radius:20px;display:flex;align-items:center;justify-content:center}
+.ct-heading{font-family:'DM Serif Display',serif;font-size:21px;line-height:1.3}
+.ct-sub{font-size:14px;color:var(--muted);line-height:1.55;max-width:300px}
+.btn-scan{width:100%;max-width:300px;padding:15px;background:var(--sky);color:var(--white);border:none;border-radius:var(--radius-sm);font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:opacity .15s;letter-spacing:.01em;margin-top:4px}
+.btn-scan:active{opacity:.82}
+.ct-spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,.15);border-top-color:var(--sky);border-radius:50%;animation:ctSpin .9s linear infinite}
+.ct-spinner.small{width:20px;height:20px;border-width:2.5px;flex-shrink:0}
+@keyframes ctSpin{to{transform:rotate(360deg)}}
+.ct-list{display:flex;flex-direction:column;gap:10px}
+.ct-device{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:14px 16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;gap:14px;transition:border-color .2s,background .2s}
+.ct-device[data-id]{cursor:pointer}
+.ct-device[data-id]:active{border-color:var(--sky);background:rgba(0,153,230,.09)}
+.ct-device.disabled{opacity:.5;pointer-events:none}
+.ct-device-icon{width:42px;height:42px;background:rgba(0,153,230,.15);border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ct-device-info{flex:1;min-width:0}
+.ct-device-name{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ct-device-sub{font-size:12px;color:var(--muted);margin-top:3px;display:flex;align-items:center;gap:6px}
+.ct-connected-label{color:var(--sky);font-weight:600}
+@media (prefers-reduced-motion:reduce){.ct-spinner{animation:none;border-top-color:rgba(255,255,255,.4)}}
 </style>
 </head>
 <body>
@@ -280,6 +308,16 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
         </g>
       </svg>
       <div class="belt-caption" data-i18n="tagline">Your bag hits the belt. <em>You know first.</em></div>
+    </div>
+    <div class="ct-tile" id="btn-open-connect">
+      <div class="ct-tile-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10-5 4V3l5 4L7 17" stroke="#0099E6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="ct-tile-body">
+        <div class="ct-tile-name">Connect your tag</div>
+        <div class="ct-tile-desc" id="ct-tile-desc">Pair a BagPing tag over Bluetooth</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M9 6l6 6-6 6" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
     <div class="section-header">
       <div class="section-title" data-i18n="bags_title">My Bags</div>
@@ -406,6 +444,23 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
       <div class="tab-btn-label" data-i18n="nav_settings">Settings</div>
     </button>
   </nav>
+</div>
+
+<div id="screen-connect" class="screen">
+  <div class="header">
+    <button class="header-btn" id="ct-back" aria-label="Back">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="rgba(255,255,255,.85)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="ct-title">Connect your tag</div>
+    <div style="width:38px;flex-shrink:0"></div>
+  </div>
+  <div class="ct-body">
+    <div id="ct-connected-section" style="display:none">
+      <div class="settings-section-title">Connected tags</div>
+      <div class="ct-list" id="ct-connected-list"></div>
+    </div>
+    <div id="ct-panel-wrap"></div>
+  </div>
 </div>
 
 <div class="chat-overlay" id="chat-overlay">
@@ -1062,6 +1117,223 @@ function logout(){
   showScreen('screen-auth');
 }
 
+/* ============================================================
+   Connect your tag - BLE pairing flow.
+   UI, state machine, and pair flow are FINAL. Device discovery
+   is the ONLY mocked piece and lives entirely inside
+   scanForTags() below.
+
+   Seam contract - scanForTags() resolves to an array of:
+     { id:     string   unique device id,
+       name:   string   advertised name,
+       signal: 'strong' | 'medium' | 'weak',
+       rssi:   number   dBm,
+       connect: function -> Promise, resolves when paired }
+   and throws { code: 'permission-denied' } when Bluetooth
+   permission is refused. Everything downstream consumes only
+   this shape.
+   ============================================================ */
+var ctState = 'idle';        /* idle | scanning | found | empty | denied | paired */
+var ctDevices = [];
+var ctConnectingId = null;
+var ctPairedName = '';
+var connectedTags = [];      /* in-memory only - persists while the app is open */
+
+// MOCK - replace with real BLE plugin call next session.
+async function scanForTags(){
+  await new Promise(function(res){ setTimeout(res, 2000); });
+  var mockConnect = function(){ return new Promise(function(res){ setTimeout(res, 1400); }); };
+  return [
+    { id: 'BP-TAG-0001', name: 'BagPing Tag - Blue',     signal: 'strong', rssi: -48, connect: mockConnect },
+    { id: 'BP-TAG-0002', name: 'BagPing Tag - Carry-on', signal: 'medium', rssi: -67, connect: mockConnect }
+  ];
+  /* To exercise the other states without hardware, temporarily use:
+       return [];                            -> Empty state
+       throw { code: 'permission-denied' };  -> Permission denied state */
+}
+
+function ctTagIcon(){
+  return '<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M20.59 13.41L13.42 20.58a2 2 0 0 1-2.83 0l-7.17-7.17A2 2 0 0 1 3 12V5a2 2 0 0 1 2-2h7a2 2 0 0 1 1.41.59l7.18 7.17a2 2 0 0 1 0 2.83z" stroke="#0099E6" stroke-width="2" stroke-linejoin="round"/><circle cx="7.5" cy="7.5" r="1.5" fill="#0099E6"/></svg>';
+}
+
+function ctCheckIcon(){
+  return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><circle cx="12" cy="12" r="10" stroke="#0099E6" stroke-width="2"/><path d="M8 12.5l2.6 2.6L16 9.5" stroke="#0099E6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
+function ctBars(signal){
+  var lit = signal === 'strong' ? 4 : (signal === 'medium' ? 2 : 1);
+  var xs = [0,6,12,18], hs = [5,8,11,14], out = '';
+  for (var i = 0; i < 4; i++){
+    out += '<rect x="' + xs[i] + '" y="' + (16 - hs[i]) + '" width="4" height="' + hs[i] + '" rx="1.5" fill="' + (i < lit ? '#0099E6' : 'rgba(255,255,255,.18)') + '"/>';
+  }
+  return '<svg width="22" height="16" viewBox="0 0 22 16" aria-hidden="true">' + out + '</svg>';
+}
+
+function ctSignalLabel(signal){
+  return signal === 'strong' ? 'Strong signal' : (signal === 'medium' ? 'Medium signal' : 'Weak signal');
+}
+
+function updateConnectTile(){
+  var el = document.getElementById('ct-tile-desc');
+  if (!el) return;
+  if (connectedTags.length === 0) el.textContent = 'Pair a BagPing tag over Bluetooth';
+  else if (connectedTags.length === 1) el.textContent = '1 tag connected';
+  else el.textContent = connectedTags.length + ' tags connected';
+}
+
+function openConnect(){
+  if (ctState === 'paired') ctState = 'idle';
+  showScreen('screen-connect');
+  renderConnect();
+}
+
+function renderConnect(){
+  var sec = document.getElementById('ct-connected-section');
+  var list = document.getElementById('ct-connected-list');
+  if (sec && list){
+    if (connectedTags.length === 0){
+      sec.style.display = 'none';
+      list.innerHTML = '';
+    } else {
+      sec.style.display = 'block';
+      list.innerHTML = connectedTags.map(function(c){
+        return '<div class="ct-device">' +
+          '<div class="ct-device-icon">' + ctTagIcon() + '</div>' +
+          '<div class="ct-device-info">' +
+            '<div class="ct-device-name">' + escapeHtml(c.name) + '</div>' +
+            '<div class="ct-device-sub"><span class="ct-connected-label">Connected</span></div>' +
+          '</div>' +
+          ctCheckIcon() +
+        '</div>';
+      }).join('');
+    }
+  }
+  renderCtPanel();
+  updateConnectTile();
+}
+
+function renderCtPanel(){
+  var wrap = document.getElementById('ct-panel-wrap');
+  if (!wrap) return;
+  var html = '';
+  if (ctState === 'idle'){
+    html = '<div class="ct-panel">' +
+      '<div class="ct-illus"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10-5 4V3l5 4L7 17" stroke="#0099E6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+      '<div class="ct-heading">Connect your BagPing tag</div>' +
+      '<div class="ct-sub">Bring your tag close and make sure it is powered on, then scan.</div>' +
+      '<button class="btn-scan" id="ct-scan-btn">Scan for tags</button>' +
+      '</div>';
+  } else if (ctState === 'scanning'){
+    html = '<div class="ct-panel">' +
+      '<div class="ct-spinner" role="status" aria-label="Scanning"></div>' +
+      '<div class="ct-heading">Looking for nearby tags...</div>' +
+      '<div class="ct-sub">Keep your tag within a few meters.</div>' +
+      '</div>';
+  } else if (ctState === 'found'){
+    var connecting = !!ctConnectingId;
+    html = '<div class="settings-section-title">Tags found</div>' +
+      '<div class="ct-list">' +
+      ctDevices.map(function(d){
+        var isC = ctConnectingId === d.id;
+        var right = isC
+          ? '<div class="ct-spinner small" role="status" aria-label="Connecting"></div>'
+          : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M9 6l6 6-6 6" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        var sub = isC
+          ? '<span class="ct-connected-label">Connecting...</span>'
+          : ctBars(d.signal) + '<span>' + ctSignalLabel(d.signal) + '</span>';
+        var cls = 'ct-device' + ((connecting && !isC) ? ' disabled' : '');
+        var attr = connecting ? '' : ' data-id="' + escapeHtml(d.id) + '"';
+        return '<div class="' + cls + '"' + attr + '>' +
+          '<div class="ct-device-icon">' + ctTagIcon() + '</div>' +
+          '<div class="ct-device-info">' +
+            '<div class="ct-device-name">' + escapeHtml(d.name) + '</div>' +
+            '<div class="ct-device-sub">' + sub + '</div>' +
+          '</div>' + right + '</div>';
+      }).join('') +
+      '</div>' +
+      (connecting ? '' : '<button class="btn-ghost" id="ct-rescan-btn">Scan again</button>');
+  } else if (ctState === 'empty'){
+    html = '<div class="ct-panel">' +
+      '<div class="ct-illus"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#0099E6" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="#0099E6" stroke-width="2" stroke-linecap="round"/></svg></div>' +
+      '<div class="ct-heading">No tags found</div>' +
+      '<div class="ct-sub">Make sure your tag is nearby and powered on.</div>' +
+      '<button class="btn-scan" id="ct-retry-btn">Retry</button>' +
+      '</div>';
+  } else if (ctState === 'denied'){
+    html = '<div class="ct-panel">' +
+      '<div class="ct-illus"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10-5 4V3l5 4L7 17" stroke="#0099E6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 3l18 18" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/></svg></div>' +
+      '<div class="ct-heading">Bluetooth permission needed</div>' +
+      '<div class="ct-sub">Bluetooth permission is needed to find your tag. Allow access in Settings, then retry.</div>' +
+      '<button class="btn-scan" id="ct-retry-btn">Retry</button>' +
+      '</div>';
+  } else if (ctState === 'paired'){
+    html = '<div class="ct-panel">' +
+      '<div class="ct-illus"><svg width="36" height="36" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#0099E6" stroke-width="2"/><path d="M8 12.5l2.6 2.6L16 9.5" stroke="#0099E6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+      '<div class="ct-heading">Tag connected</div>' +
+      '<div class="ct-sub">' + escapeHtml(ctPairedName) + ' is paired and ready.</div>' +
+      '<button class="btn-scan" id="ct-done-btn">Done</button>' +
+      '<button class="btn-ghost" id="ct-more-btn">Scan for more tags</button>' +
+      '</div>';
+  }
+  wrap.innerHTML = html;
+  var sb = document.getElementById('ct-scan-btn');
+  if (sb) sb.addEventListener('click', startScan);
+  var rb = document.getElementById('ct-retry-btn');
+  if (rb) rb.addEventListener('click', startScan);
+  var rs = document.getElementById('ct-rescan-btn');
+  if (rs) rs.addEventListener('click', startScan);
+  var mb = document.getElementById('ct-more-btn');
+  if (mb) mb.addEventListener('click', startScan);
+  var db = document.getElementById('ct-done-btn');
+  if (db) db.addEventListener('click', function(){ ctState = 'idle'; renderConnect(); });
+  wrap.querySelectorAll('.ct-device[data-id]').forEach(function(el){
+    el.addEventListener('click', function(){ connectTag(el.getAttribute('data-id')); });
+  });
+}
+
+async function startScan(){
+  if (ctState === 'scanning' || ctConnectingId) return;
+  ctState = 'scanning';
+  ctDevices = [];
+  renderConnect();
+  try {
+    var devices = await scanForTags();
+    devices = (devices || []).filter(function(d){
+      return !connectedTags.some(function(c){ return c.id === d.id; });
+    });
+    if (devices.length){ ctDevices = devices; ctState = 'found'; }
+    else { ctState = 'empty'; }
+  } catch(e){
+    if (e && e.code === 'permission-denied'){ ctState = 'denied'; }
+    else { console.error('[BagPing connect] scan failed', e); ctState = 'empty'; }
+  }
+  renderConnect();
+}
+
+async function connectTag(id){
+  if (ctConnectingId || ctState !== 'found') return;
+  var dev = null;
+  for (var i = 0; i < ctDevices.length; i++){
+    if (ctDevices[i].id === id){ dev = ctDevices[i]; break; }
+  }
+  if (!dev) return;
+  ctConnectingId = id;
+  renderConnect();
+  try {
+    await dev.connect();
+    connectedTags.push({ id: dev.id, name: dev.name, signal: dev.signal });
+    ctDevices = ctDevices.filter(function(d){ return d.id !== dev.id; });
+    ctPairedName = dev.name;
+    ctConnectingId = null;
+    ctState = 'paired';
+  } catch(e){
+    console.error('[BagPing connect] pair failed', e);
+    ctConnectingId = null;
+    toast('Could not connect. Try again.');
+  }
+  renderConnect();
+}
+
 function bind(){
   document.getElementById('btn-send-code').addEventListener('click', sendCode);
   document.getElementById('btn-auth-lang').addEventListener('click', openLangPicker);
@@ -1117,6 +1389,9 @@ function bind(){
     if (e.target.id==='legal-sheet') closeLegal();
   });
   document.getElementById('btn-logout').addEventListener('click', logout);
+
+  document.getElementById('btn-open-connect').addEventListener('click', openConnect);
+  document.getElementById('ct-back').addEventListener('click', function(){ showScreen('screen-main'); });
 
   document.getElementById('ping-dismiss').addEventListener('click', ()=>{
     document.getElementById('ping-banner').classList.remove('show');
