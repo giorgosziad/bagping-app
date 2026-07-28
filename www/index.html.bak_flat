@@ -279,17 +279,17 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
 
   <div id="tab-home" class="tab-content active">
     <div class="belt-hero">
-      <svg id="belt-carousel" class="belt-svg-wrap" viewBox="0 0 520 190" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="An airport baggage carousel with varied luggage riding the belt and the yellow BagPing bag pinging">
+      <svg id="belt-carousel" class="belt-svg-wrap" viewBox="0 0 520 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="An airport baggage carousel with varied luggage riding the belt and the yellow BagPing bag pinging">
         <defs>
           <linearGradient id="beltTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#33465C"/><stop offset="1" stop-color="#1B2937"/></linearGradient>
           <linearGradient id="beltFace" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16222F"/><stop offset="1" stop-color="#0A121C"/></linearGradient>
           <radialGradient id="hub" cx="0.5" cy="0.4" r="0.65"><stop offset="0" stop-color="#26374A"/><stop offset="1" stop-color="#101C28"/></radialGradient>
           <radialGradient id="pingG" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFD600" stop-opacity=".45"/><stop offset="1" stop-color="#FFD600" stop-opacity="0"/></radialGradient>
         </defs>
-        <path d="M10,110 A250,36 0 0,0 510,110 L510,134 A250,36 0 0,1 10,134 Z" fill="url(#beltFace)"/>
-        <ellipse cx="260" cy="110" rx="250" ry="36" fill="url(#beltTop)"/>
-        <ellipse cx="260" cy="107" rx="180" ry="17" fill="url(#hub)" stroke="#0A121C" stroke-width="2"/>
-        <path id="loop" d="M260,83 A214,27 0 0,1 260,137 A214,27 0 0,1 260,83" fill="none"/>
+        <path d="M30,150 A230,70 0 0,0 490,150 L490,178 A230,70 0 0,1 30,178 Z" fill="url(#beltFace)"/>
+        <ellipse cx="260" cy="150" rx="230" ry="70" fill="url(#beltTop)"/>
+        <ellipse cx="260" cy="148" rx="150" ry="38" fill="url(#hub)" stroke="#0A121C" stroke-width="2"/>
+        <path id="loop" d="M260,96 A190,54 0 0,1 260,204 A190,54 0 0,1 260,96" fill="none"/>
         <g>
           <animateMotion dur="20.0s" begin="-0.00s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
           <g transform="rotate(-5)"><rect x="-14" y="-17" width="28" height="31" rx="5" fill="#B0562F"/><rect x="-14" y="-4" width="28" height="3.4" fill="#00000026"/><path d="M-6.5 -17v-3.4a6.5 6.5 0 0 1 13 0v3.4" fill="none" stroke="#7E3B1F" stroke-width="2.4"/></g>

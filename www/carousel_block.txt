@@ -1,0 +1,84 @@
+<svg id="belt-carousel" class="belt-svg-wrap" viewBox="0 0 520 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="An airport baggage carousel with varied luggage riding the belt and the yellow BagPing bag pinging">
+        <defs>
+          <linearGradient id="beltTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#33465C"/><stop offset="1" stop-color="#1B2937"/></linearGradient>
+          <linearGradient id="beltFace" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16222F"/><stop offset="1" stop-color="#0A121C"/></linearGradient>
+          <radialGradient id="hub" cx="0.5" cy="0.4" r="0.65"><stop offset="0" stop-color="#26374A"/><stop offset="1" stop-color="#101C28"/></radialGradient>
+          <radialGradient id="pingG" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFD600" stop-opacity=".45"/><stop offset="1" stop-color="#FFD600" stop-opacity="0"/></radialGradient>
+        </defs>
+        <path d="M30,150 A230,70 0 0,0 490,150 L490,178 A230,70 0 0,1 30,178 Z" fill="url(#beltFace)"/>
+        <ellipse cx="260" cy="150" rx="230" ry="70" fill="url(#beltTop)"/>
+        <ellipse cx="260" cy="148" rx="150" ry="38" fill="url(#hub)" stroke="#0A121C" stroke-width="2"/>
+        <path id="loop" d="M260,96 A190,54 0 0,1 260,204 A190,54 0 0,1 260,96" fill="none"/>
+        <g>
+          <animateMotion dur="20.0s" begin="-0.00s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g transform="rotate(-5)"><rect x="-14" y="-17" width="28" height="31" rx="5" fill="#B0562F"/><rect x="-14" y="-4" width="28" height="3.4" fill="#00000026"/><path d="M-6.5 -17v-3.4a6.5 6.5 0 0 1 13 0v3.4" fill="none" stroke="#7E3B1F" stroke-width="2.4"/></g>
+        </g>
+        <g>
+          <animateMotion dur="20.0s" begin="-1.11s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g transform="rotate(-1)"><rect x="-14" y="-17" width="28" height="31" rx="4" fill="#3E6E8E"/><line x1="-8" y1="-16" x2="-8" y2="13" stroke="#2A4C63" stroke-width="1.6" opacity=".55"/><line x1="-2.5" y1="-16" x2="-2.5" y2="13" stroke="#2A4C63" stroke-width="1.6"/><line x1="3" y1="-16" x2="3" y2="13" stroke="#2A4C63" stroke-width="1.6"/><line x1="8.5" y1="-16" x2="8.5" y2="13" stroke="#2A4C63" stroke-width="1.6"/></g>
+        </g>
+        <g>
+          <animateMotion dur="20.0s" begin="-2.22s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g transform="rotate(3)"><rect x="-18" y="-8" width="36" height="22" rx="11" fill="#8A93A0"/><path d="M-9 -8q9 -9 18 0" fill="none" stroke="#5E6671" stroke-width="2.4"/></g>
+        </g>
+        <g>
+          <animateMotion dur="20.0s" begin="-3.33s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g transform="rotate(-4)"><rect x="-12" y="-18" width="24" height="32" rx="9" fill="#6E7F52"/><rect x="-8" y="-2" width="16" height="13" rx="4" fill="#4C5938" opacity=".55"/></g>
+        </g>
+        <g>
+          <animateMotion dur="20.0s" begin="-4.44s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g transform="rotate(0)"><rect x="-17" y="-13" width="34" height="27" rx="8" fill="#C2A36B"/><path d="M-8 -13v-3a8 8 0 0 1 16 0v3" fill="none" stroke="#8E7546" stroke-width="2.2"/></g>
+        </g>
+        <g>
+          <animateMotion dur="20.0s" begin="-5.56s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g transform="rotate(4)"><rect x="-14" y="-17" width="28" height="31" rx="5" fill="#566275"/><rect x="-14" y="-4" width="28" height="3.4" fill="#00000026"/><path d="M-6.5 -17v-3.4a6.5 6.5 0 0 1 13 0v3.4" fill="none" stroke="#3A4351" stroke-width="2.4"/></g>
+        </g>
+        <g>
+          <animateMotion dur="20.0s" begin="-6.67s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g transform="rotate(-3)"><rect x="-14" y="-17" width="28" height="31" rx="4" fill="#9C4C56"/><line x1="-8" y1="-16" x2="-8" y2="13" stroke="#6E343B" stroke-width="1.6" opacity=".55"/><line x1="-2.5" y1="-16" x2="-2.5" y2="13" stroke="#6E343B" stroke-width="1.6"/><line x1="3" y1="-16" x2="3" y2="13" stroke="#6E343B" stroke-width="1.6"/><line x1="8.5" y1="-16" x2="8.5" y2="13" stroke="#6E343B" stroke-width="1.6"/></g>
+        </g>
+        <g>
+          <animateMotion dur="20.0s" begin="-7.78s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g transform="rotate(1)"><rect x="-18" y="-8" width="36" height="22" rx="11" fill="#7C8A9C"/><path d="M-9 -8q9 -9 18 0" fill="none" stroke="#556173" stroke-width="2.4"/></g>
+        </g>
+        <g>
+          <animateMotion dur="20.0s" begin="-8.89s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g><circle cx="0" cy="-2" r="40" fill="url(#pingG)"><animate attributeName="r" values="26;46;26" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".7;0;.7" dur="2s" repeatCount="indefinite"/></circle><circle cx="0" cy="-2" r="20" fill="none" stroke="#FFD600" stroke-width="2"><animate attributeName="r" values="16;34" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0" dur="2s" repeatCount="indefinite"/></circle><rect x="-16" y="-20" width="32" height="37" rx="6" fill="#FFD600"/><rect x="-16" y="-20" width="32" height="37" rx="6" fill="none" stroke="#052744" stroke-width="2"/><path d="M-8 -20v-4a8 8 0 0 1 16 0v4" fill="none" stroke="#052744" stroke-width="2.6"/><rect x="-16" y="-5" width="32" height="3.4" fill="#052744" opacity=".85"/><circle cx="0" cy="5" r="4.6" fill="#052744"/><circle cx="0" cy="5" r="1.9" fill="#FFD600"/></g>
+        </g>
+        <g>
+          <animateMotion dur="20.0s" begin="-10.00s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g transform="rotate(-2)"><rect x="-12" y="-18" width="24" height="32" rx="9" fill="#4C7A70"/><rect x="-8" y="-2" width="16" height="13" rx="4" fill="#33564E" opacity=".55"/></g>
+        </g>
+        <g>
+          <animateMotion dur="20.0s" begin="-11.11s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g transform="rotate(2)"><rect x="-14" y="-17" width="28" height="31" rx="5" fill="#A88D5A"/><rect x="-14" y="-4" width="28" height="3.4" fill="#00000026"/><path d="M-6.5 -17v-3.4a6.5 6.5 0 0 1 13 0v3.4" fill="none" stroke="#79643E" stroke-width="2.4"/></g>
+        </g>
+        <g>
+          <animateMotion dur="20.0s" begin="-12.22s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g transform="rotate(-5)"><rect x="-14" y="-17" width="28" height="31" rx="4" fill="#62708A"/><line x1="-8" y1="-16" x2="-8" y2="13" stroke="#454F61" stroke-width="1.6" opacity=".55"/><line x1="-2.5" y1="-16" x2="-2.5" y2="13" stroke="#454F61" stroke-width="1.6"/><line x1="3" y1="-16" x2="3" y2="13" stroke="#454F61" stroke-width="1.6"/><line x1="8.5" y1="-16" x2="8.5" y2="13" stroke="#454F61" stroke-width="1.6"/></g>
+        </g>
+        <g>
+          <animateMotion dur="20.0s" begin="-13.33s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g transform="rotate(-1)"><rect x="-17" y="-13" width="34" height="27" rx="8" fill="#C97B3A"/><path d="M-8 -13v-3a8 8 0 0 1 16 0v3" fill="none" stroke="#8F5626" stroke-width="2.2"/></g>
+        </g>
+        <g>
+          <animateMotion dur="20.0s" begin="-14.44s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g transform="rotate(3)"><path d="M-13 14 V-6 a13 13 0 0 1 26 0 V14 Z" fill="#5B6B8C"/><path d="M-9 -8 a9 9 0 0 1 18 0" fill="none" stroke="#3E4A63" stroke-width="2.4"/></g>
+        </g>
+        <g>
+          <animateMotion dur="20.0s" begin="-15.56s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g transform="rotate(-4)"><rect x="-14" y="-17" width="28" height="31" rx="5" fill="#00A6C2"/><rect x="-14" y="-4" width="28" height="3.4" fill="#00000026"/><path d="M-6.5 -17v-3.4a6.5 6.5 0 0 1 13 0v3.4" fill="none" stroke="#00758A" stroke-width="2.4"/></g>
+        </g>
+        <g>
+          <animateMotion dur="20.0s" begin="-16.67s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g transform="rotate(0)"><rect x="-19" y="-9" width="38" height="20" rx="6" fill="#8E97A4"/><path d="M-19 -3 h38" stroke="#646C77" stroke-width="1.6" opacity=".6"/></g>
+        </g>
+        <g>
+          <animateMotion dur="20.0s" begin="-17.78s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g transform="rotate(4)"><rect x="-18" y="-8" width="36" height="22" rx="11" fill="#B0562F"/><path d="M-9 -8q9 -9 18 0" fill="none" stroke="#7E3B1F" stroke-width="2.4"/></g>
+        </g>
+        <g>
+          <animateMotion dur="20.0s" begin="-18.89s" repeatCount="indefinite"><mpath xlink:href="#loop"/></animateMotion>
+          <g transform="rotate(-3)"><rect x="-12" y="-18" width="24" height="32" rx="9" fill="#3E6E8E"/><rect x="-8" y="-2" width="16" height="13" rx="4" fill="#2A4C63" opacity=".55"/></g>
+        </g>
+      </svg>

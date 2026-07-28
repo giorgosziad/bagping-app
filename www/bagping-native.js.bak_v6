@@ -9,9 +9,9 @@
  * v5 amendments: (1) vivid color pass - card becomes a blue field with real
  * shadow depth; (2) bp:langchange listener - Belt Radar card and panel
  * re-render on every language switch; (4) hero rebuilt as the website's
- * carousel: perspective oval, orbiting bags, BAGGAGE CLAIM sign, tagged
- * yellow bag pinging. Radar card icon redrawn to belong to the same
- * carousel family.
+ * carousel: perspective oval, orbiting bags with scale change, varied
+ * luggage, BAGGAGE CLAIM sign, tagged yellow bag pinging. Radar card icon
+ * redrawn to belong to the same carousel family.
  */
 (function () {
   'use strict';
@@ -264,17 +264,15 @@
     }, 1100);
   }
 
-  /* ---- The belt hero scene ----------------------------------------------
+  /* ---- The belt hero scene ---------------------------------------------
    * Amendment 4: the app adopts the website's carousel so both platforms
    * share one visual language. Ported and reframed from the site's 520x360
    * scene to a 400x200 strip that fits the glass card:
    *  - perspective oval carousel with central hub and belt face
-   *  - 19 bags + the yellow BagPing hero = 20 riders, all riding FLAT via
-   *    animateMotion on #bpLoop - one shared speed, evenly staggered by
-   *    negative begin (16s / 20 = 0.8s apart), no scale animation, no float:
-   *    15 uniform suitcases (one shape, 5 colors x 3 each) plus 4 distinct
-   *    silhouettes (duffel, backpack, garment bag, dome-top hard case)
-   *    interleaved among them
+   *  - bags orbit via animateMotion on an elliptical path (#bpLoop), one
+   *    shared speed, staggered by negative begin; scale swells 0.55 -> 1.15
+   *    through the front of the loop for depth
+   *  - varied luggage: upright, ribbed, duffel, backpack, tan case
    *  - BAGGAGE CLAIM sign; tagged yellow BagPing bag with pulsing ping rings
    *  - brand palette only; SMIL timeline frozen under reduced motion
    * Optional real-photo layer unchanged: if /img/belt-hero.jpg is deployed
@@ -296,96 +294,16 @@
       '@media (prefers-reduced-motion: reduce){#bp-hero-ping *{animation:none !important}}';
     document.head.appendChild(style);
 
-    /* The bag set. One rider on the carousel: FLAT ride, constant size
-       (fixed scale, never animated), no float, no tilt - only animateMotion
-       around #bpLoop. 20 riders on a 16s loop = one bag every 0.8s,
-       perfectly even all the way around: 15 uniform suitcases (5 colors x 3),
-       4 distinct silhouettes interleaved among them, and the yellow BagPing
-       hero as the single standout. */
-    function bag(inner, begin, s) {
-      return '<g><g transform="scale(' + s + ')">' + inner + '</g>' +
+    /* One bag on the carousel. Same speed for every bag (one belt), staggered
+       by negative begin; scale swells through the front of the loop - the
+       website scene's perspective, reframed for the app card. */
+    function bag(inner, begin, tilt) {
+      return '<g><g>' +
+        '<g' + (tilt ? ' transform="' + tilt + '"' : '') + '>' + inner + '</g>' +
+        '<animateTransform attributeName="transform" type="scale" additive="sum" keyTimes="0;0.5;1" values="0.55;1.15;0.55" dur="16s" begin="' + begin + '" repeatCount="indefinite"/>' +
+        '</g>' +
         '<animateMotion dur="16s" begin="' + begin + '" rotate="0" repeatCount="indefinite"><mpath xlink:href="#bpLoop" href="#bpLoop"/></animateMotion>' +
         '</g>';
-    }
-    /* One uniform suitcase shape - identical dimensions for all 15. */
-    function ucase(body, trim) {
-      return '<rect x="-14" y="-17" width="28" height="31" rx="5" fill="' + body + '"/>' +
-        '<rect x="-14" y="-4" width="28" height="3.4" fill="#00000026"/>' +
-        '<path d="M-6.5 -17v-3.4a6.5 6.5 0 0 1 13 0v3.4" fill="none" stroke="' + trim + '" stroke-width="2.4"/>';
-    }
-    /* Four distinct silhouettes - same flat ride, same baseline, clearly
-       different shapes from the uniform suitcase. */
-    function duffel(body, trim) {
-      return '<rect x="-17" y="-9" width="34" height="21" rx="10.5" fill="' + body + '"/>' +
-        '<rect x="-9.5" y="-9" width="2.4" height="21" fill="' + trim + '" opacity=".6"/>' +
-        '<rect x="7.1" y="-9" width="2.4" height="21" fill="' + trim + '" opacity=".6"/>' +
-        '<rect x="-17" y="-1.4" width="34" height="2" fill="#00000026"/>' +
-        '<path d="M-5.5 -9v-3.6a2.6 2.6 0 0 1 2.6-2.6h5.8a2.6 2.6 0 0 1 2.6 2.6v3.6" fill="none" stroke="' + trim + '" stroke-width="2.2"/>';
-    }
-    function backpack(body, trim) {
-      return '<rect x="-12" y="-16" width="24" height="30" rx="8" fill="' + body + '"/>' +
-        '<rect x="-8" y="0" width="16" height="11" rx="4" fill="' + trim + '" opacity=".85"/>' +
-        '<rect x="-7.4" y="-13" width="2.2" height="11" fill="' + trim + '" opacity=".55"/>' +
-        '<rect x="5.2" y="-13" width="2.2" height="11" fill="' + trim + '" opacity=".55"/>' +
-        '<path d="M-4 -16v-2.4a4 4 0 0 1 8 0v2.4" fill="none" stroke="' + trim + '" stroke-width="2.2"/>';
-    }
-    function garmentBag(body, trim) {
-      return '<rect x="-9" y="-20" width="18" height="34" rx="4" fill="' + body + '"/>' +
-        '<rect x="-1.1" y="-18" width="2.2" height="30" fill="' + trim + '" opacity=".5"/>' +
-        '<rect x="-9" y="-4.6" width="18" height="2.4" fill="#00000026"/>' +
-        '<rect x="-4.5" y="-8.4" width="9" height="3" rx="1.5" fill="' + trim + '"/>' +
-        '<path d="M0 -20v-2.4a3 3 0 0 1 3-3" fill="none" stroke="' + trim + '" stroke-width="2"/>';
-    }
-    function domeCase(body, trim) {
-      return '<path d="M-14 14v-22a14 12 0 0 1 28 0v22z" fill="' + body + '"/>' +
-        '<rect x="-14" y="-2" width="28" height="3.2" fill="#00000026"/>' +
-        '<rect x="-9" y="4" width="4" height="5.5" rx="1" fill="' + trim + '"/>' +
-        '<rect x="5" y="4" width="4" height="5.5" rx="1" fill="' + trim + '"/>' +
-        '<path d="M-4.5 -19.6v-1.6a4.5 4.5 0 0 1 9 0v1.6" fill="none" stroke="' + trim + '" stroke-width="2.2"/>';
-    }
-    /* The tagged yellow BagPing bag with pulsing ping rings - the standout. */
-    function pingBag() {
-      return '<circle cx="0" cy="-2" r="34" fill="url(#bpPing)"><animate attributeName="r" values="22;42;22" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".7;0;.7" dur="2s" repeatCount="indefinite"/></circle>' +
-        '<circle cx="0" cy="-2" r="18" fill="none" stroke="' + YELLOW + '" stroke-width="2"><animate attributeName="r" values="14;30" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0" dur="2s" repeatCount="indefinite"/></circle>' +
-        '<rect x="-15" y="-19" width="30" height="35" rx="6" fill="' + YELLOW + '"/>' +
-        '<rect x="-15" y="-19" width="30" height="35" rx="6" fill="none" stroke="' + NAVY + '" stroke-width="2"/>' +
-        '<path d="M-7 -19v-3.6a7 7 0 0 1 14 0v3.6" fill="none" stroke="' + NAVY + '" stroke-width="2.4"/>' +
-        '<rect x="-15" y="-5" width="30" height="3.2" fill="' + NAVY + '" opacity=".85"/>' +
-        '<circle cx="0" cy="4" r="4.2" fill="' + NAVY + '"/>' +
-        '<circle cx="0" cy="4" r="1.7" fill="' + YELLOW + '"/>';
-    }
-    /* 5 colors [body, trim], each used exactly 3 times across the 15
-       uniform suitcases. */
-    var BAG_COLORS = [
-      ['#B0562F', '#7E3B1F'],
-      ['#3E6E8E', '#2A4C63'],
-      ['#6E7F52', '#4C5938'],
-      ['#C2A36B', '#8E7546'],
-      ['#566275', '#3A4351']
-    ];
-    /* The 4 distinct silhouettes, each its own muted luggage tone (none
-       yellow - the hero keeps the standout), interleaved at slots 2, 6,
-       14, 18 so they spread around the loop instead of bunching. Hero at
-       slot 10. 20 slots x 0.8s = the full 16s loop, perfectly even. */
-    var NEW_BAGS = [
-      duffel('#7E4A67', '#573247'),
-      backpack('#2F6B5E', '#1F4A41'),
-      garmentBag('#5B4A7E', '#3F3358'),
-      domeCase('#9A4A4A', '#6E3333')
-    ];
-    var NEW_SLOTS = { 2: 0, 6: 1, 14: 2, 18: 3 };
-    var bagsMarkup = '';
-    var ci = 0;
-    for (var bi = 0; bi < 20; bi++) {
-      var begin = (bi === 0) ? '0s' : ('-' + (bi * 0.8).toFixed(1) + 's');
-      if (bi === 10) {
-        bagsMarkup += bag(pingBag(), begin, 0.8);
-      } else if (NEW_SLOTS.hasOwnProperty(bi)) {
-        bagsMarkup += bag(NEW_BAGS[NEW_SLOTS[bi]], begin, 0.72);
-      } else {
-        bagsMarkup += bag(ucase(BAG_COLORS[ci % 5][0], BAG_COLORS[ci % 5][1]), begin, 0.72);
-        ci++;
-      }
     }
 
     var wrap = document.createElement('div');
@@ -413,7 +331,19 @@
         '<ellipse cx="200" cy="115" rx="92" ry="26" fill="url(#bpHub)" stroke="#0A121C" stroke-width="2"/>' +
         '<ellipse cx="200" cy="118" rx="170" ry="52" fill="none" stroke="#0A121C" stroke-width="2"/>' +
         '<path id="bpLoop" d="M200,70 A135,40 0 0,1 200,150 A135,40 0 0,1 200,70" fill="none"/>' +
-        bagsMarkup +
+        bag('<rect x="-14" y="-17" width="28" height="31" rx="5" fill="#B0562F"/><rect x="-14" y="-4" width="28" height="3.4" fill="#00000026"/><path d="M-6.5 -17v-3.4a6.5 6.5 0 0 1 13 0v3.4" fill="none" stroke="#7E3B1F" stroke-width="2.4"/>', '-0.5s', 'rotate(4)') +
+        bag('<rect x="-14" y="-17" width="28" height="31" rx="4" fill="#3E6E8E"/><line x1="-7" y1="-16" x2="-7" y2="13" stroke="#2A4C63" stroke-width="1.6" opacity=".55"/><line x1="0" y1="-16" x2="0" y2="13" stroke="#2A4C63" stroke-width="1.6" opacity=".55"/><line x1="7" y1="-16" x2="7" y2="13" stroke="#2A4C63" stroke-width="1.6" opacity=".55"/><path d="M-6 -17v-3.2a6 6 0 0 1 12 0v3.2" fill="none" stroke="#2A4C63" stroke-width="2.2"/>', '-3.2s', 'rotate(-3)') +
+        bag('<rect x="-18" y="-8" width="36" height="22" rx="11" fill="#8A93A0"/><path d="M-9 -8q9 -9 18 0" fill="none" stroke="#5E6671" stroke-width="2.4"/><rect x="-18" y="1" width="36" height="3" fill="#00000022"/>', '-5.9s', '') +
+        bag('<rect x="-12" y="-18" width="24" height="32" rx="9" fill="#6E7F52"/><rect x="-8" y="-2" width="16" height="13" rx="4" fill="#4C5938" opacity=".55"/><path d="M-9 -14c-4 6 -4 18 0 26M9 -14c4 6 4 18 0 26" fill="none" stroke="#4C5938" stroke-width="2"/>', '-10.7s', 'rotate(5)') +
+        bag('<rect x="-17" y="-13" width="34" height="27" rx="8" fill="#C2A36B"/><path d="M-8 -13v-3a8 8 0 0 1 16 0v3" fill="none" stroke="#8E7546" stroke-width="2.2"/><rect x="-17" y="-2" width="34" height="3" fill="#00000022"/>', '-13.4s', 'rotate(-2)') +
+        bag('<circle cx="0" cy="-2" r="34" fill="url(#bpPing)"><animate attributeName="r" values="22;42;22" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".7;0;.7" dur="2s" repeatCount="indefinite"/></circle><circle cx="0" cy="-2" r="18" fill="none" stroke="' + YELLOW + '" stroke-width="2"><animate attributeName="r" values="14;30" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0" dur="2s" repeatCount="indefinite"/></circle><rect x="-15" y="-19" width="30" height="35" rx="6" fill="' + YELLOW + '"/><rect x="-15" y="-19" width="30" height="35" rx="6" fill="none" stroke="' + NAVY + '" stroke-width="2"/><path d="M-7 -19v-3.6a7 7 0 0 1 14 0v3.6" fill="none" stroke="' + NAVY + '" stroke-width="2.4"/><rect x="-15" y="-5" width="30" height="3.2" fill="' + NAVY + '" opacity=".85"/><circle cx="0" cy="4" r="4.2" fill="' + NAVY + '"/><circle cx="0" cy="4" r="1.7" fill="' + YELLOW + '"/>', '-8.2s', '') +
+        bag('<rect x="-14" y="-17" width="28" height="31" rx="5" fill="#566275"/><rect x="-14" y="-4" width="28" height="3.4" fill="#00000026"/><path d="M-6.5 -17v-3.4a6.5 6.5 0 0 1 13 0v3.4" fill="none" stroke="#3A4351" stroke-width="2.4"/>', '-1.9s', 'rotate(-4)') +
+        bag('<rect x="-14" y="-17" width="28" height="31" rx="4" fill="#9C4C56"/><line x1="-7" y1="-16" x2="-7" y2="13" stroke="#6E343B" stroke-width="1.6" opacity=".55"/><line x1="0" y1="-16" x2="0" y2="13" stroke="#6E343B" stroke-width="1.6" opacity=".55"/><line x1="7" y1="-16" x2="7" y2="13" stroke="#6E343B" stroke-width="1.6" opacity=".55"/><path d="M-6 -17v-3.2a6 6 0 0 1 12 0v3.2" fill="none" stroke="#6E343B" stroke-width="2.2"/>', '-4.6s', 'rotate(3)') +
+        bag('<rect x="-18" y="-8" width="36" height="22" rx="11" fill="#7C8A9C"/><path d="M-9 -8q9 -9 18 0" fill="none" stroke="#556173" stroke-width="2.4"/><rect x="-18" y="1" width="36" height="3" fill="#00000022"/>', '-7.3s', '') +
+        bag('<rect x="-12" y="-18" width="24" height="32" rx="9" fill="#4C7A70"/><rect x="-8" y="-2" width="16" height="13" rx="4" fill="#33564E" opacity=".55"/><path d="M-9 -14c-4 6 -4 18 0 26M9 -14c4 6 4 18 0 26" fill="none" stroke="#33564E" stroke-width="2"/>', '-11.6s', 'rotate(-5)') +
+        bag('<path d="M-13 14 V-6 a13 13 0 0 1 26 0 V14 Z" fill="#5B6B8C"/><path d="M-9 -8 a9 9 0 0 1 18 0" fill="none" stroke="#3E4A63" stroke-width="2.4"/><rect x="-13" y="4" width="26" height="3" fill="#00000022"/>', '-12.5s', 'rotate(2)') +
+        bag('<rect x="-15" y="-14" width="30" height="28" rx="6" fill="#00A6C2"/><path d="M-7 -14v-3a7 7 0 0 1 14 0v3" fill="none" stroke="#00758A" stroke-width="2.2"/><rect x="-15" y="-3" width="30" height="3" fill="#00000022"/>', '-14.9s', 'rotate(-2)') +
+        bag('<rect x="-19" y="-9" width="38" height="20" rx="6" fill="#8E97A4"/><path d="M-19 -3 h38" stroke="#646C77" stroke-width="1.6" opacity=".6"/><rect x="-19" y="2" width="38" height="3" fill="#00000022"/>', '-6.6s', 'rotate(1)') +
       '</svg>';
     var scene = wrap.firstChild;
 
