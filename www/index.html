@@ -952,6 +952,8 @@ async function speakReply(text){
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
       var u = new SpeechSynthesisUtterance(text); u.lang = voiceLang();
+      u.rate = 1.0;
+      u.pitch = 1.0;
       window.speechSynthesis.speak(u);
     }
   } catch(e){}
