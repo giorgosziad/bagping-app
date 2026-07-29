@@ -1,11 +1,14 @@
 /* ============================================================
    BagPing voice-cache.js — play pre-generated NEURAL audio.
+
    Load this AFTER voice.js:
      <script src="voice.js"></script>
      <script src="voice-cache.js"></script>
+
    It wraps BPVoice.speak: if a cached neural mp3 exists for the
    spoken phrase, it plays the FILE (real neural voice). Otherwise
    it falls through to the original BPVoice engine untouched.
+
    Cached files live at:  www/audio/{lang}/{key}.mp3
    ============================================================ */
 (function () {
@@ -59,7 +62,9 @@
   window.BPVoice.speak = function (text, lang, opts) {
     try {
       var hit = LOOKUP[norm(text)];
-      if (hit) {
+      // English cache disabled — cached English MP3s play slow-motion in the
+      // iOS WebView; English falls through to the live BPVoice engine (en: 1.0).
+      if (hit && hit.lang !== 'en') {
         var url = 'audio/' + hit.lang + '/' + hit.key + '.mp3';
         return playFile(url).then(function(){ return true; })
           .catch(function(){ return _origSpeak(text, lang, opts); }); // file missing -> old engine
