@@ -502,7 +502,6 @@ html,body{height:100%;width:100%;font-family:'Outfit',sans-serif;background:var(
     </button>
   </nav>
 </div>
-
 <div id="screen-connect" class="screen">
   <div class="header">
     <button class="header-btn" id="ct-back" aria-label="Back" data-i18n-aria="auth_back">
@@ -1494,8 +1493,7 @@ function boot(){
   }
 }
 
-if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
-else boot();
+if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
 /* Build 21 fix 4: the Belt Radar card is injected by bagping-native.js, which
    loads AFTER boot() has already run applyI18n(). Re-apply once everything has
