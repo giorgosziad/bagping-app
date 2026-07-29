@@ -1,5 +1,6 @@
 /* ============================================================
    BagPing Voice Engine — voice.js
+
    The crew's voice. Curated per language, never the OS default.
 
    - Queries getSupportedVoices() once, scores every voice,
@@ -23,6 +24,7 @@
          BPVoice.refresh()      clears cache (user installed a
                                 new voice in OS settings)
          BPVoice.debug()        -> { voices, picks } for QA
+
    ============================================================ */
 (function () {
   'use strict';
@@ -283,16 +285,20 @@
     var p = plugin();
     if (!p || !text) return Promise.resolve(false);
     var base = baseLang(lang);
+    /* English pinned fully neutral (slow/musical regression on iOS):
+       plain default system voice — no curated pick, rate 1.0, pitch 1.0. */
+    var neutral = (base === 'en');
     return pickVoice(base).then(function (pick) {
       var params = {
         text: text,
-        lang: (pick && pick.tag) || REGION[base] || lang || 'en-US',
-        rate:  (opts.rate  != null) ? opts.rate  : (RATE_LANG[base] || RATE),
-        pitch: (opts.pitch != null) ? opts.pitch : PITCH,
+        lang: neutral ? (REGION[base] || 'en-US')
+                      : ((pick && pick.tag) || REGION[base] || lang || 'en-US'),
+        rate:  (opts.rate  != null) ? opts.rate  : (neutral ? 1.0 : (RATE_LANG[base] || RATE)),
+        pitch: (opts.pitch != null) ? opts.pitch : (neutral ? 1.0 : PITCH),
         volume: 1.0,
         category: 'playback'   // iOS: audible even with the ring switch muted
       };
-      if (pick && typeof pick.index === 'number' && pick.index >= 0) {
+      if (!neutral && pick && typeof pick.index === 'number' && pick.index >= 0) {
         params.voice = pick.index;
       }
       return p.speak(params).then(function () { return true; });
